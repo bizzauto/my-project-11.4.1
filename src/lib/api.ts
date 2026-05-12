@@ -2,13 +2,13 @@
 import axios from 'axios';
 
 const getApiBaseUrl = () => {
-const isCapacitor = !!(window as any).Capacitor;
+  const isCapacitor = !!(window as any).Capacitor;
 
-if (isCapacitor) {
-return import.meta.env.VITE_API_URL || 'https://your-server.com';
-}
+  if (isCapacitor) {
+    return import.meta.env.VITE_API_URL || 'https://your-server.com';
+  }
 
-return import.meta.env.VITE_API_URL || 'http://localhost:4000';
+  return import.meta.env.VITE_API_URL || '';
 };
 
 const API_BASE_URL = getApiBaseUrl();

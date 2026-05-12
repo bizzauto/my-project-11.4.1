@@ -11,6 +11,37 @@ import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
 import winston from 'winston';
 import path from 'path';
+import authRoutes from './routes/auth.js';
+import aiRoutes from './routes/ai.js';
+import analyticsRoutes from './routes/analytics.js';
+import appointmentsRoutes from './routes/appointments.js';
+import automationRoutes from './routes/automation.js';
+import businessRoutes from './routes/business.js';
+import campaignsRoutes from './routes/campaigns.js';
+import chatbotRoutes from './routes/chatbot.js';
+import contactsRoutes from './routes/contacts.js';
+import documentsRoutes from './routes/documents.js';
+import ecommerceRoutes from './routes/ecommerce.js';
+import emailRoutes from './routes/email.js';
+import evolutionRoutes from './routes/evolution.js';
+import googleBusinessRoutes from './routes/google-business.js';
+import indiamartEmailRoutes from './routes/indiamart-email.js';
+import integrationsRoutes from './routes/integrations.js';
+import intelligenceRoutes from './routes/intelligence.js';
+import leadsRoutes from './routes/leads.js';
+import notificationsRoutes from './routes/notifications.js';
+import postersRoutes from './routes/posters.js';
+import postsRoutes from './routes/posts.js';
+import qwenPreviewRoutes from './routes/qwen-preview.js';
+import reportsRoutes from './routes/reports.js';
+import reviewsRoutes from './routes/reviews.js';
+import settingsRoutes from './routes/settings.js';
+import subscriptionsRoutes from './routes/subscriptions.js';
+import superAdminRoutes from './routes/super-admin.js';
+import teamRoutes from './routes/team.js';
+import twoFactorRoutes from './routes/twoFactor.js';
+import webhooksRoutes from './routes/webhooks.js';
+import whatsappRoutes from './routes/whatsapp.js';
 
 dotenv.config();
 
@@ -79,6 +110,39 @@ app.use((req, res, next) => {
   req.id = crypto.randomUUID();
   next();
 });
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/appointments', appointmentsRoutes);
+app.use('/api/automation', automationRoutes);
+app.use('/api/business', businessRoutes);
+app.use('/api/campaigns', campaignsRoutes);
+app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/contacts', contactsRoutes);
+app.use('/api/documents', documentsRoutes);
+app.use('/api/ecommerce', ecommerceRoutes);
+app.use('/api/email', emailRoutes);
+app.use('/api/evolution', evolutionRoutes);
+app.use('/api/google-business', googleBusinessRoutes);
+app.use('/api/indiamart-email', indiamartEmailRoutes);
+app.use('/api/integrations', integrationsRoutes);
+app.use('/api/intelligence', intelligenceRoutes);
+app.use('/api/leads', leadsRoutes);
+app.use('/api/notifications', notificationsRoutes);
+app.use('/api/posters', postersRoutes);
+app.use('/api/posts', postsRoutes);
+app.use('/api/qwen-preview', qwenPreviewRoutes);
+app.use('/api/reports', reportsRoutes);
+app.use('/api/reviews', reviewsRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/subscriptions', subscriptionsRoutes);
+app.use('/api/super-admin', superAdminRoutes);
+app.use('/api/team', teamRoutes);
+app.use('/api/two-factor', twoFactorRoutes);
+app.use('/api/webhooks', webhooksRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
