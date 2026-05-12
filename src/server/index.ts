@@ -107,7 +107,7 @@ app.get('/health', (req, res) => {
 });
 
 // Catch-all route to serve Frontend index.html
-app.get('/:path*', (req, res) => {
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../../dist/client/index.html'));
 });
 
