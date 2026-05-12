@@ -114,7 +114,14 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     ...(NODE_ENV === 'development' && { stack: err.stack }),
   });
 });
-
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  logger.error('Error:', { ... });
+  
+  return res.status(err.status || 500).json({
+    success: false,
+    error: err.message || 'Internal Server Error',
+  });
+});
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
