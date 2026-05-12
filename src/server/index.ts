@@ -96,8 +96,9 @@ app.get('/health', (req, res) => {
 });
  
 });
-app.get('.*', (req, res) => {
+app.get('/:path*', (req, res) => {
   res.sendFile(path.join(__dirname, '../../dist/client/index.html'));
+});
 });
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
