@@ -134,13 +134,16 @@ process.on('SIGTERM', async () => {
 });
 
 process.on('uncaughtException', async (error) => {
+  console.error('UNCAUGHT EXCEPTION:', error);
   logger.error('Uncaught Exception:', error);
   await prisma.$disconnect();
   process.exit(1);
 });
 
 // Start server
+console.log(`Starting server on ${HOST}:${PORT} in ${NODE_ENV} mode`);
 app.listen(Number(PORT), HOST, () => {
+  console.log(`Server running on http://${HOST}:${PORT} in ${NODE_ENV} mode`);
   logger.info(`Server running on http://${HOST}:${PORT} in ${NODE_ENV} mode`);
 });
 

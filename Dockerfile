@@ -26,6 +26,5 @@ COPY --from=builder /app/public ./public
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-CMD wget --quiet --tries=1 --spider http://localhost:3000/health
-CMD ["sh", "-c", "npx prisma migrate deploy 2>/dev/null || true; node dist/server/index.js"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 CMD wget --quiet --tries=1 --spider http://localhost:3000/health || exit 1
+CMD ["sh", "-c", "npx prisma migrate deploy 2>/dev/null || true; exec node dist/server/index.js"]
