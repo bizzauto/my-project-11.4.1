@@ -1,3 +1,7 @@
+console.log('=== SERVER STARTING ===');
+console.log('PORT:', process.env.PORT);
+console.log('HOST:', process.env.HOST);
+console.log('NODE_ENV:', process.env.NODE_ENV);
 import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
