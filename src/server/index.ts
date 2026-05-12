@@ -102,18 +102,6 @@ if (NODE_ENV === 'production') {
     }
   });
 }
-// Serve frontend in production
-if (NODE_ENV === 'production') {
-  const clientBuildPath = path.join(__dirname, '..', '..', 'dist', 'client');
-  app.use(express.static(clientBuildPath));
-  app.use((req, res) => {
-    if (!req.path.startsWith('/api')) {
-      res.sendFile(path.join(clientBuildPath, 'index.html'));
-    } else {
-      res.status(404).json({ success: false, error: 'Route not found' });
-    }
-  });
-}
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error('Error:', {
