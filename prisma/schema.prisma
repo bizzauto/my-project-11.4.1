@@ -1,0 +1,1128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== AUTH & TENANCY ====================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String?
+  phone         String?
+  role          Role      @default(OWNER)
+  businessId    String?
+  business      Business? @relation(fields: [businessId], references: [id])
+  emailVerified DateTime?
+  image         String?
+  avatar        String?
+  isActive      Boolean   @default(true)
+  isVerified    Boolean   @default(false) // <--- हा नवीन कॉलम जोडला आहे
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // 2FA Fields
+  twoFactorSecret      String? 
+  twoFactorEnabled     Boolean @default(false)
+  twoFactorBackupCodes String? 
+
+  // CSRF Token
+  csrfToken          String?
+  csrfTokenExpiresAt DateTime?
+
+  notifications Notification[]
+  themePref     ThemePreference?
+  aiContents    AIContent[]
+
+  @@index([businessId])
+  @@index([email])
+  @@index([role])
+}
+
+model Business {
+  id          String  @id @default(cuid())
+  name        String
+  type        String 
+  phone       String?
+  email       String?
+  city        String?
+  state       String?
+  country     String  @default("India")
+  address     String?
+  website     String?
+  logoUrl     String?
+  brandColors Json? 
+  timezone    String  @default("Asia/Kolkata")
+  
+  // --- LIMITS (हे कॉलम्स तुमच्या सीडिंगसाठी महत्त्वाचे आहेत) ---
+  contactsLimit      Int       @default(500)
+  messagesLimit      Int       @default(1000)
+  usersLimit         Int       @default(1)
+  
+  // Subscription
+  plan            Plan      @default(FREE)
+  planStartedAt   DateTime?
+  planExpiresAt   DateTime?
+  razorpaySubId   String?
+  razorpayOrderId String?
+
+  // WhatsApp Config
+  wabaId          String? 
+  waPhoneNumberId String? 
+  waAccessToken   String? 
+  waWebhookSecret String?
+  waPhoneNumber   String?
+
+  // AI Credits
+  aiCreditsUsed      Int @default(0)
+  aiCreditsLimit     Int @default(100)
+  aiCreditsPurchased Int @default(0)
+
+  // Relations
+  users        User[]
+  contacts     Contact[]
+  ledgerEntries LedgerEntry[]
+  coupons       Coupon[]
+  pipelines    Pipeline[]
+  campaigns    Campaign[]
+  appointments Appointment[]
+  documents    Document[]
+  products     Product[]
+  posts        Post[]
+  reviews      Review[]
+  integrations Integration[]
+  activities   Activity[]
+  wingsStore   WingsStore[]
+  eCommerceStore ECommerceStore?
+  posterTemplates PosterTemplate[]
+  whiteLabel   WhiteLabel?
+  messageTemplates  MessageTemplate[]
+  documentTemplates DocumentTemplate[]
+  autopilotSettings AutopilotSettings?
+  subscriptions Subscription[]
+  auditLogs     AuditLog[]
+  automationRules AutomationRule[]
+  workflowRuns    WorkflowRun[]
+  invoices        Invoice[]
+  leadScores      LeadScore[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([plan])
+}
+
+enum Role {
+  SUPER_ADMIN
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum Plan {
+  FREE
+  BASIC
+  PROFESSIONAL
+  ENTERPRISE
+  AGENCY
+}
+
+model Subscription {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  plan      Plan
+  status    String // active, cancelled, expired, paused
+  startDate DateTime
+  endDate   DateTime?
+
+  razorpaySubscriptionId String?
+  razorpayOrderId        String?
+  razorpayPaymentId      String?
+  razorpaySubId          String? // Alias
+
+  amount   Int // in paise (cents)
+  currency String @default("INR")
+  interval String // monthly, yearly
+
+  // Period tracking
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  cancelledAt        DateTime?
+
+  // Metadata
+  metadata Json?
+
+  // Payment method
+  paymentMethodId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([status])
+}
+
+// ==================== CONTACTS & CRM ====================
+
+model Contact {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  name    String
+  phone   String?
+  email   String?
+  company String?
+  title   String?
+  designation String?
+  city    String?
+  state   String?
+
+  // Source tracking
+  source   String  @default("manual") // whatsapp, indiamart, justdial, facebook, instagram, website
+  sourceId String? // external ID from source
+
+  // Pipeline
+  pipelineId String?
+  pipeline   Pipeline? @relation(fields: [pipelineId], references: [id])
+  stageId    String?
+  stageName  String?
+
+  // Tags & Custom Fields
+  tags         String[] @default([])
+  customFields Json? // { fieldId: value, ... }
+  metadata     Json?
+
+  // Deal value
+  dealValue Float   @default(0)
+  dealStage String? // for deal tracking
+
+  // WhatsApp
+  whatsappOptIn   Boolean   @default(false)
+  whatsappBlocked Boolean   @default(false)
+  waProfilePic    String?
+  waLastMessageAt DateTime?
+  lastMessageAt   DateTime?
+  lastActivity    DateTime?
+
+  // Status
+  status     String  @default("active") // active, inactive, blocked
+  stage      String? // pipeline stage
+  assignedTo String?
+
+  // Relations
+  activities   Activity[]
+  appointments Appointment[]
+  documents    Document[]
+  messages     Message[]
+  orders       Order[]
+  leadScores   LeadScore[]
+  ledgerEntries LedgerEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([businessId, phone])
+  @@unique([businessId, email])
+  @@index([businessId])
+  @@index([source])
+  @@index([tags])
+}
+
+model Pipeline {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  name        String
+  description String?
+  stages      Stage[]
+  contacts    Contact[]
+  isDefault   Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([businessId, name])
+  @@index([businessId])
+}
+
+model Stage {
+  id         String   @id @default(cuid())
+  pipelineId String
+  pipeline   Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+
+  name  String
+  order Int
+  color String? // hex color
+
+  @@index([pipelineId])
+}
+
+model Activity {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  contactId String?
+  contact   Contact? @relation(fields: [contactId], references: [id])
+
+  type        String // call, email, whatsapp, meeting, note, task, deal_stage_change
+  title       String
+  description String?
+  content     String? // Alternative field for content
+  metadata    Json? // For storing specific data
+
+  // Task fields
+  dueDate     DateTime?
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  priority    String    @default("medium") // low, medium, high
+
+  // Related to
+  dealValue Float?
+  stageFrom String?
+  stageTo   String?
+
+  createdBy String
+  createdAt DateTime @default(now())
+
+  @@index([businessId])
+  @@index([contactId])
+  @@index([type])
+}
+
+// ==================== WHATSAPP MESSAGING ====================
+
+model Message {
+  id        String  @id @default(cuid())
+  contactId String
+  contact   Contact @relation(fields: [contactId], references: [id])
+  businessId String?
+
+  waMessageId String? // WhatsApp message ID
+  direction   String // incoming, outgoing
+  type        String // text, image, document, template, location, button, list, etc.
+  content     String // message text or caption
+  mediaUrl    String? // For media messages
+  mediaType   String? // image, document, video, audio
+  mediaSize   Int?
+  mediaName   String?
+
+  // Template
+  templateName     String?
+  templateLanguage String?
+  templateParams   Json?
+  templateVars     Json? // Alias for templateParams
+
+  // Status
+  status          String    @default("pending") // pending, sent, delivered, read, failed
+  statusTimestamp DateTime? // Alias
+  statusUpdatedAt DateTime?
+  errorCode       String?
+  errorMessage    String?
+  error           String? // Alias
+
+  // Campaign
+  campaignId String?
+  campaign   Campaign? @relation(fields: [campaignId], references: [id])
+
+  // Interactive
+  interactiveType String?
+  metadata        Json? // Extra message metadata
+
+  // Reply context
+  replyToMessageId String?
+  replyContext     Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([contactId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model MessageTemplate {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  name       String
+  language   String @default("en")
+  category   String @default("UTILITY") // MARKETING, UTILITY, AUTHENTICATION
+  components Json // WA template structure
+
+  // Status
+  status       String  @default("PENDING") // PENDING, APPROVED, REJECTED
+  waTemplateId String? // WhatsApp's template ID
+  waStatus     String? // WhatsApp's status
+
+  // Usage
+  usageCount Int       @default(0)
+  lastUsedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@unique([businessId, name])
+}
+
+// ==================== CAMPAIGNS ====================
+
+model Campaign {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  name   String
+  type   String // whatsapp_broadcast, email, sms, social_media
+  status String @default("draft") // draft, scheduled, running, paused, completed, cancelled
+
+  // Target
+  segmentId  String?
+  filters    Json? // { tags: [], source: [], pipelineId: "" }
+  contactIds String[] // For targeted campaigns
+  targetTags String[]
+  targetFilters Json?
+  targetContacts Int @default(0)
+  targetCount    Int @default(0)
+
+  // Content
+  templateId String?
+  templateName String?
+  templateVars Json?
+  content    Json // { text: "", buttons: [], media: {} }
+  dripSteps Json?
+
+  // Scheduling
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  sentAt      DateTime?
+  completedAt DateTime?
+
+  // Stats
+  totalContacts Int @default(0)
+  totalSent     Int @default(0)
+  sent          Int @default(0)
+  delivered     Int @default(0)
+  read          Int @default(0)
+  clicked       Int @default(0)
+  failed        Int @default(0)
+
+  // Relations
+  messages Message[]
+
+  // Error tracking
+  errors Json[] // [{ contactId, error, timestamp }]
+
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+// ==================== APPOINTMENTS ====================
+
+model Appointment {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  contactId String
+  contact   Contact @relation(fields: [contactId], references: [id])
+
+  title       String
+  description String?
+  service     String?
+  startTime   DateTime
+  endTime     DateTime
+  status      String   @default("pending") // pending, confirmed, cancelled, completed, no_show
+
+  // Location
+  location    String?
+  isOnline    Boolean @default(false)
+  meetingLink String?
+  meetingUrl  String?
+
+  // Reminders
+  reminderSent Boolean @default(false)
+
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([contactId])
+  @@index([startTime])
+}
+
+// ==================== E-COMMERCE ====================
+
+model Product {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  name           String
+  description    String?
+  price          Float
+  compareAtPrice Float?
+  sku            String?
+  barcode        String?
+
+  // Inventory
+  quantity       Int     @default(0)
+  trackInventory Boolean @default(true)
+
+  // Images
+  images    String[]
+  mainImage String?
+
+  // Categorization
+  category String?
+  tags     String[]
+
+  // Status
+  isActive Boolean @default(true)
+  status   String  @default("active") // active, draft, out_of_stock
+
+  // External IDs
+  shopifyId     String?
+  wooCommerceId String?
+
+  // Relations
+  variants ProductVariant[]
+  orders   OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+}
+
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  name     String // e.g., "Red - Large"
+  options  Json // { color: "red", size: "L" }
+  price    Float?
+  sku      String?
+  quantity Int     @default(0)
+
+  @@index([productId])
+}
+
+model Order {
+  id         String @id @default(cuid())
+  businessId String
+
+  contactId String
+  contact   Contact @relation(fields: [contactId], references: [id])
+
+  orderNumber   String @unique
+  status        String @default("pending") // pending, processing, shipped, delivered, cancelled, refunded
+  paymentStatus String @default("pending") // pending, paid, failed, refunded
+
+  // Totals
+  subtotal       Float
+  taxAmount      Float @default(0)
+  shippingAmount Float @default(0)
+  discountAmount Float @default(0)
+  total          Float
+
+  // Items
+  items OrderItem[]
+
+  // Shipping
+  shippingAddress Json?
+
+  // Gateway
+  gateway     String? // razorpay, cod, etc.
+  gatewayData Json? // raw payment data
+
+  // Notes
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([contactId])
+}
+
+model OrderItem {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  variantId String?
+
+  name     String // snapshot at time of order
+  quantity Int
+  price    Float
+  total    Float
+
+  @@index([orderId])
+}
+
+// ==================== LEDGER / ACCOUNTING ====================
+
+model LedgerEntry {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id])
+
+  date        DateTime @default(now())
+  type        LedgerType // income, expense
+  category    String   // Sales, Software, Salary, Marketing, etc.
+  description String
+  amount      Float
+
+  // Payment details
+  paymentMethod PaymentMethod? // cash, bank, upi, card
+  referenceNo  String? // Invoice number, transaction ID
+
+  // Relations
+  contactId   String?
+  contact     Contact? @relation(fields: [contactId], references: [id])
+  invoiceId   String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([date])
+  @@index([type])
+  @@index([category])
+}
+
+enum LedgerType {
+  INCOME
+  EXPENSE
+}
+
+enum PaymentMethod {
+  CASH
+  BANK
+  UPI
+  CARD
+}
+
+// ==================== COUPONS ====================
+
+model Coupon {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id])
+
+  code        String
+  type        CouponType // PERCENTAGE, FIXED
+  value       Float      // Discount value (percentage or fixed amount)
+
+  // Conditions
+  minOrder    Float     @default(0)      // Minimum order value to apply
+  maxUses     Int?      // Maximum number of uses
+  usedCount   Int       @default(0)
+
+  // Validity
+  active      Boolean  @default(true)
+  startsAt    DateTime @default(now())
+  expiresAt   DateTime?
+
+  // Description
+  description String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([businessId, code])
+  @@index([businessId])
+  @@index([active])
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
+}
+
+// ==================== DOCUMENTS ====================
+
+model Document {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  name       String
+  type       String // invoice, quotation, receipt, contract, brochure
+  templateId String?
+  documentNumber String? // e.g., INV-001
+
+  // Content
+  content Json // document data
+  html    String? // generated HTML
+  pdfUrl  String? // generated PDF
+
+  // Status
+  status String @default("draft") // draft, generated, sent, viewed, signed
+  sentVia String? // email, whatsapp
+  publicLink String? // Public URL
+
+  // Client
+  clientName  String?
+  clientPhone String?
+  clientEmail String?
+  contactId   String?
+  contact     Contact? @relation(fields: [contactId], references: [id])
+
+  // Amounts
+  amount Float?
+
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+}
+
+model DocumentTemplate {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  name        String
+  type        String // invoice, quotation, receipt
+  description String?
+
+  // Template
+  header  String?
+  footer  String?
+  content String // HTML template
+  css     String?
+
+  // Variables - placeholder system
+  variables Json[] // [{ name: "clientName", type: "text" }]
+
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([businessId, name])
+}
+
+// ==================== SOCIAL MEDIA ====================
+
+model Post {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  content String
+  images  String[]
+  link    String?
+
+  // Platform & Status
+  platforms String[] // facebook, instagram, linkedin, twitter
+  status    String   @default("draft") // draft, scheduled, published, failed
+
+  // Scheduling
+  scheduledAt  DateTime?
+  publishedAt  DateTime?
+  publishedIds Json? // { facebook: "post_id", instagram: "media_id" }
+
+  // Stats
+  stats Json? // { facebook: { likes: 0, comments: 0, shares: 0 } }
+
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+// ==================== REVIEWS ====================
+
+model Review {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  // Source
+  platform   String // google, facebook, justdial, indiamart, internal
+  externalId String? // ID from platform
+
+  // Reviewer
+  reviewerName  String
+  reviewerPhone String?
+  reviewerEmail String?
+
+  // Content
+  rating Int      @default(5)
+  text   String?
+  images String[]
+
+  // Reply
+  replyText   String?
+  replyStatus String? // pending, replied, auto_replied
+  repliedAt   DateTime?
+  repliedBy   String?
+
+  // Status
+  isPublished Boolean @default(true)
+  isFeatured  Boolean @default(false)
+
+  reviewDate DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([businessId])
+  @@index([platform])
+}
+
+// ==================== INTEGRATIONS ====================
+
+model Integration {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  type String // google_sheets, indiamart_email, zapier, n8n, webhook
+  name String
+
+  // OAuth & Config (encrypted)
+  config Json
+
+  // Status
+  isActive   Boolean   @default(true)
+  lastSyncAt DateTime?
+  lastError  String?
+
+  // Webhook URL
+  webhookUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([businessId, type])
+  @@index([businessId])
+}
+
+// ==================== AI CONTENT ====================
+
+model AIContent {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  type String // caption, blog, email, whatsapp_text, reply, poster, marketing_copy
+
+  // I/O
+  prompt String
+  result String
+
+  // Model info
+  model      String
+  tokensUsed Int
+
+  // Feedback
+  isFavorite Boolean @default(false)
+  rating     Int? // 1-5 feedback
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([type])
+}
+
+// ==================== AUTOMATION ====================
+
+model AutomationRule {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  name        String
+  description String?
+  isActive    Boolean @default(true)
+
+  // Trigger
+  trigger Json // { type: "message_received", conditions: {} }
+
+  // Actions
+  actions Json[] // [{ type: "send_whatsapp", content: "" }]
+
+  // Stats
+  runCount  Int       @default(0)
+  lastRunAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+}
+
+model WorkflowRun {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  ruleId String?
+  status String  @default("running") // running, completed, failed
+
+  // Context
+  triggerData Json // data that triggered the workflow
+  actions     Json[] // action results
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@index([businessId])
+  @@index([status])
+}
+
+// ==================== Wings Store (AI Creative Assets) ====================
+
+model WingsStore {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  name     String
+  type     String // image, video, audio, template
+  category String // poster, flyer, social, whatsapp_bg
+
+  // File
+  url       String
+  thumbnail String?
+  size      Int?
+  mimeType  String?
+
+  // Meta
+  tags     String[]
+  metadata Json? // dimensions, duration, etc.
+
+  // Source
+  isGenerated Boolean @default(false) // Was created via AI
+  prompt      String? // AI generation prompt
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId])
+}
+
+// ==================== AUTOPILOT ====================
+
+model AutopilotSettings {
+  id         String   @id @default(cuid())
+  businessId String   @unique
+  business   Business @relation(fields: [businessId], references: [id])
+
+  // General
+  isEnabled  Boolean @default(false)
+  replyDelay Int     @default(5) // seconds
+
+  // Workflows
+  welcomeMessage String?
+  welcomeEnabled Boolean @default(false)
+
+  followUpEnabled Boolean @default(false)
+  followUpDelay   Int     @default(1440) // minutes (24 hours)
+  followUpMessage String?
+
+  // AI settings
+  aiEnabled  Boolean @default(false)
+  aiTone     String  @default("professional") // friendly, professional, casual
+  aiLanguage String  @default("en")
+
+  // Hours
+  businessHoursOnly Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+// ==================== AUDIT LOGS ====================
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  action   String // create, update, delete, login, logout, export
+  entity   String // contact, campaign, product, etc.
+  entityId String?
+
+  // Details
+  oldValues   Json?
+  newValues   Json?
+  description String?
+
+  // Actor
+  userId    String?
+  userEmail String?
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// ==================== NOTIFICATIONS ====================
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  businessId String?
+
+  type    String // campaign_completed, lead_arrived, message_received, etc.
+  title   String
+  message String
+
+  // Link to entity
+  entityType String?
+  entityId   String?
+
+  // Status
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  isArchived Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model ThemePreference {
+  userId String @id
+  user   User   @relation(fields: [userId], references: [id])
+
+  theme            String  @default("dark") // light, dark, system
+  sidebarCollapsed Boolean @default(false)
+  accentColor      String  @default("blue")
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+// ==================== E-COMMERCE STORE ====================
+model ECommerceStore {
+  id         String   @id @default(cuid())
+  businessId String   @unique
+  business   Business @relation(fields: [businessId], references: [id])
+
+  name        String
+  description String?
+  url         String?
+  provider    String? // shopify, woocommerce, custom
+  config      Json?   // store-specific config
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+}
+
+// ==================== POSTER TEMPLATES ====================
+model PosterTemplate {
+  id         String   @id @default(cuid())
+  businessId String?
+  business   Business? @relation(fields: [businessId], references: [id])
+
+  name        String
+  description String?
+  category    String // social, whatsapp, flyer, poster
+  content     String // HTML/JSON template
+  variables   Json[] // [{ name: "title", type: "text" }]
+  isSystem    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+}
+
+// ==================== INVOICE ====================
+model Invoice {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  invoiceNumber String @unique
+  subscriptionId String?
+
+  amount   Int
+  currency String @default("INR")
+  status   String @default("pending") // pending, paid, failed, refunded
+
+  gateway     String? // razorpay, stripe
+  gatewayData Json?
+
+  paidAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+}
+
+// ==================== LEAD SCORE ====================
+model LeadScore {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  contactId String
+  contact   Contact @relation(fields: [contactId], references: [id])
+
+  score       Int @default(0)
+  factors     Json[] // [{ factor: "email_opened", points: 5 }]
+  lastUpdated DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+
+  @@unique([businessId, contactId])
+  @@index([businessId])
+}
+
+// ==================== WHITE LABEL ====================
+model WhiteLabel {
+  id         String   @id @default(cuid())
+  businessId String   @unique
+  business   Business @relation(fields: [businessId], references: [id])
+
+  brandName   String?
+  logoUrl     String?
+  faviconUrl  String?
+  primaryColor String?
+  customCss   String?
+  customDomain String?
+
+  isActive Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+@@index([businessId])
+}

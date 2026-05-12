@@ -1,0 +1,49 @@
+import type { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.indiacrm.app',
+  appName: 'IndiaCRM',
+  webDir: '../dist/client',
+
+  // Server URL for production - change to your actual domain
+  server: {
+    cleartext: true,
+    androidScheme: 'https',
+  },
+
+  android: {
+    allowMixedContent: true,
+    captureInput: true,
+    webContentsDebuggingEnabled: false,
+  },
+
+  ios: {
+    contentInset: 'always',
+    allowsLinkPreview: false,
+    scrollEnabled: true,
+  },
+
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 3000,
+      launchAutoHide: true,
+      launchFadeOutDuration: 500,
+      backgroundColor: '#0F172A',
+      androidSplashResourceName: 'splash',
+      androidScaleType: 'CENTER_CROP',
+      showSpinner: true,
+      androidSpinnerStyle: 'large',
+      iosSpinnerStyle: 'small',
+      spinnerColor: '#10B981',
+      splashFullScreen: true,
+      splashImmersive: true,
+    },
+    StatusBar: {
+      style: 'dark',
+      backgroundColor: '#0F172A',
+      overlaysWebView: false,
+    },
+  },
+};
+
+export default config;

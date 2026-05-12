@@ -1,0 +1,30 @@
+{
+  "name": "indiacrm-mobile",
+  "private": true,
+  "version": "1.0.0",
+  "description": "IndiaCRM Mobile App - Android & iOS",
+  "type": "module",
+  "scripts": {
+    "build:web": "cd .. && npm run build",
+    "sync": "npx cap sync",
+    "open:android": "npx cap open android",
+    "open:ios": "npx cap open ios",
+    "build:android": "npm run build:web && npx cap sync android && npx cap open android",
+    "build:ios": "npm run build:web && npx cap sync ios && npx cap open ios",
+    "dev:android": "npx cap run android",
+    "dev:ios": "npx cap run ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/camera": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/filesystem": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
+    "@capacitor/local-notifications": "^8.0.0",
+    "@capacitor/push-notifications": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0"
+  }
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">IndiaCRM</string>
+    <string name="title_activity_main">IndiaCRM</string>
+    <string name="package_name">com.indiacrm.app</string>
+    <string name="custom_url_scheme">com.indiacrm.app</string>
+</resources>

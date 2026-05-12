@@ -1,0 +1,21 @@
+name: Deploy Data to Supabase
+
+on:
+  push:
+    branches:
+      - main  # Jenvha tumhi main branch var push karal tenvha he karel
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install PostgreSQL Client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Run Migration
+        run: |
+          # Jar tumchi file 'data.sql' naivachi asel tar ti automatic run hoil
+          psql ${{ secrets.SUPABASE_DB_URL }} -f data.sql
