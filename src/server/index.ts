@@ -94,9 +94,7 @@ app.get('/health', (req, res) => {
     environment: NODE_ENV,
     version: '1.0.0'
 });
-app.get('.*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../dist/index.html'));
-});  
+ 
 });
 app.get('.*', (req, res) => {
   res.sendFile(path.join(__dirname, '../../dist/client/index.html'));
