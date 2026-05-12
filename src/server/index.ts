@@ -1,9 +1,14 @@
 process.on('unhandledRejection', (err) => console.error('REJECTION:', err));
-process.on('uncaughtException', (err) => { console.error('EXCEPTION:', err); process.exit(1); });
+process.on('uncaughtException', (err) => {
+  console.error('EXCEPTION:', err);
+  process.exit(1);
+});
+
 console.log('=== SERVER STARTING ===');
 console.log('PORT:', process.env.PORT);
 console.log('HOST:', process.env.HOST);
 console.log('NODE_ENV:', process.env.NODE_ENV);
+
 import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -68,10 +73,12 @@ app.use(helmet({
   },
   crossOriginEmbedderPolicy: false,
 }));
+
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true,
 }));
+
 app.use(compression());
 app.use(morgan('combined', {
   stream: { write: (message) => logger.info(message.trim()) }
@@ -85,7 +92,10 @@ app.use((req, res, next) => {
   req.id = crypto.randomUUID();
   next();
 });
+
+// Static files (Frontend)
 app.use(express.static(path.join(__dirname, '../../dist/client')));
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({
@@ -93,13 +103,14 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: NODE_ENV,
     version: '1.0.0'
+  });
 });
- 
-});
+
+// Catch-all route to serve Frontend index.html
 app.get('/:path*', (req, res) => {
   res.sendFile(path.join(__dirname, '../../dist/client/index.html'));
 });
-});
+
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error('Error:', {
@@ -109,26 +120,18 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     method: req.method,
   });
 
-  res.status(err.status || 500).json({
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  return res.status(err.status || 500).json({
     success: false,
     error: err.message || 'Internal Server Error',
     ...(NODE_ENV === 'development' && { stack: err.stack }),
   });
 });
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  logger.error('Error:', {
-  error: err.message,
-  stack: err.stack,
-  path: req.path,
-  method: req.method,
-});
-  
-  return res.status(err.status || 500).json({
-    success: false,
-    error: err.message || 'Internal Server Error',
-  });
-});
-// 404 handler
+
+// 404 handler (Fallback)
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -143,18 +146,12 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-process.on('uncaughtException', async (error) => {
-  logger.error('Uncaught Exception:', error);
-  await prisma.$disconnect();
-  process.exit(1);
-});
-
 // Start server
 app.listen(Number(PORT), HOST, () => {
   logger.info(`Server running on http://${HOST}:${PORT} in ${NODE_ENV} mode`);
 });
 
-// Export authenticate middleware for use in routes
+// Export authenticate middleware
 export { authenticate } from './middleware/auth.js';
 
 export default app;
