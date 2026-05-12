@@ -1,3 +1,5 @@
+process.on('unhandledRejection', (err) => console.error('REJECTION:', err));
+process.on('uncaughtException', (err) => { console.error('EXCEPTION:', err); process.exit(1); });
 console.log('=== SERVER STARTING ===');
 console.log('PORT:', process.env.PORT);
 console.log('HOST:', process.env.HOST);
