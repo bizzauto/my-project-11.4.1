@@ -29,4 +29,4 @@ EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD wget --quiet --tries=1 --spider http://localhost:4000/api/health || exit 1
 
-CMD ["sh", "-c", "npx prisma migrate deploy 2>/dev/null || true && node dist/server/index.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy 2>/dev/null || true; node dist/server/index.js"]
