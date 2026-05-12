@@ -115,7 +115,12 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  logger.error('Error:', { ... });
+  logger.error('Error:', {
+  error: err.message,
+  stack: err.stack,
+  path: req.path,
+  method: req.method,
+});
   
   return res.status(err.status || 500).json({
     success: false,
