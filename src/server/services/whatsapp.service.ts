@@ -1,6 +1,5 @@
 // @ts-nocheck
 import axios from 'axios';
-import { HttpsProxyAgent } from 'https-proxy-agent';
 import { prisma } from '../index.js';
 import { decrypt, encrypt } from '../utils/auth.js';
 
@@ -53,6 +52,7 @@ export class WhatsAppService {
       if (options.useProxy) {
         const proxy = await this.getAvailableProxy(businessId);
         if (proxy) {
+          const { HttpsProxyAgent } = await import('https-proxy-agent');
           config.httpsAgent = new HttpsProxyAgent(proxy.url);
         }
       }
@@ -152,6 +152,7 @@ export class WhatsAppService {
       if (options.useProxy) {
         const proxy = await this.getAvailableProxy(businessId);
         if (proxy) {
+          const { HttpsProxyAgent } = await import('https-proxy-agent');
           config.httpsAgent = new HttpsProxyAgent(proxy.url);
         }
       }
@@ -228,6 +229,7 @@ export class WhatsAppService {
       if (options.useProxy) {
         const proxy = await this.getAvailableProxy(businessId);
         if (proxy) {
+          const { HttpsProxyAgent } = await import('https-proxy-agent');
           config.httpsAgent = new HttpsProxyAgent(proxy.url);
         }
       }
