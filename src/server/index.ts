@@ -191,6 +191,11 @@ app.use((req, res) => {
 });
 
 // Graceful shutdown
+process.on('unhandledRejection', (error: any) => {
+  console.error('UNHANDLED REJECTION:', error);
+  console.error('Stack:', error?.stack);
+});
+
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully');
   await prisma.$disconnect();
@@ -199,9 +204,8 @@ process.on('SIGTERM', async () => {
 
 process.on('uncaughtException', async (error) => {
   console.error('UNCAUGHT EXCEPTION:', error);
+  console.error('Stack:', error.stack);
   logger.error('Uncaught Exception:', error);
-  await prisma.$disconnect();
-  process.exit(1);
 });
 
 // Start server
