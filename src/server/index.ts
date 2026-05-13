@@ -144,8 +144,15 @@ app.use('/api/two-factor', twoFactorRoutes);
 app.use('/api/webhooks', webhooksRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 
+// Debug: log all requests
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.path}`);
+  next();
+});
+
 // Test POST endpoint
 app.post('/test', (req, res) => {
+  console.log('Test POST body:', req.body);
   res.json({ success: true, body: req.body });
 });
 
