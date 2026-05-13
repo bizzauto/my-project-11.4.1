@@ -192,7 +192,7 @@ export default function DashboardPage() {
         leadsAPI.list({ limit: 4 }),
       ]);
 
-      const dashData = dashboardRes.data;
+      const dashData = dashboardRes.data?.data || dashboardRes.data;
 
       // Build stats from API response
       const statsData: StatCardProps[] = [
@@ -205,7 +205,7 @@ export default function DashboardPage() {
         },
         {
           title: 'Messages Sent',
-          value: dashData?.stats?.messagesSent ?? 0,
+          value: dashData?.stats?.messagesToday ?? 0,
           change: dashData?.stats?.messagesChange ?? '+0%',
           positive: (dashData?.stats?.messagesChange ?? '+0%').includes('+'),
           icon: <MessageSquare size={24} />,
@@ -228,16 +228,16 @@ export default function DashboardPage() {
       setStats(statsData);
 
       // Set analytics chart data
-      const chartData: AnalyticsData[] = dashData?.chartData ?? dashData?.analytics ?? [];
-      setAnalyticsData(chartData.length > 0 ? chartData : []);
+      const chartData = dashData?.data?.chartData ?? [];
+      setAnalyticsData(Array.isArray(chartData) ? chartData : []);
 
       // Set pipeline distribution
-      const pipeData: PipelineData[] = dashData?.pipeline ?? dashData?.pipelineDistribution ?? [];
-      setPipelineData(pipeData.length > 0 ? pipeData : []);
+      const pipeData = dashData?.data?.pipeline ?? [];
+      setPipelineData(Array.isArray(pipeData) ? pipeData : []);
 
       // Set recent leads
-      const leads = leadsRes.data?.leads ?? leadsRes.data ?? [];
-      const formattedLeads: LeadContact[] = leads.map((lead: any) => ({
+      const leads = leadsRes.data?.data ?? [];
+      const formattedLeads: LeadContact[] = (Array.isArray(leads) ? leads : []).map((lead: any) => ({
         id: lead._id || lead.id,
         name: lead.name || 'Unknown',
         phone: lead.phone || 'N/A',
