@@ -5,7 +5,7 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Zap, AlertCircle, ArrowLef
 import { useAuthStore } from '../lib/authStore';
 import { useTranslation } from 'react-i18next';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();

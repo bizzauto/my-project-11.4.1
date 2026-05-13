@@ -5,7 +5,7 @@ import { businessAPI } from '../lib/api';
 import TwoFactorSetupModal from './TwoFactorSetupModal';
 import { Save, Building, Phone, Mail, MapPin, Globe, Clock, Palette, Image, Shield, Lock, Loader2 } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function SettingsPage() {
   const { business, user } = useAuthStore();
