@@ -161,8 +161,11 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ user, business, token, isAuthenticated: true, isLoading: false, onboardingCompleted: false });
     } catch (error: any) {
       set({ isLoading: false });
-      const message = error.response?.data?.error || error.response?.data?.message || 'Registration failed. Please try again.';
-      throw new Error(message);
+      const reqUrl = error.config?.baseURL + error.config?.url || '';
+      const status = error.response?.status || '';
+      const msg = error.response?.data?.error || error.response?.data?.message || 'Registration failed. Please try again.';
+      console.error('REGISTER FAIL:', { url: reqUrl, status, msg, config: error.config?.baseURL });
+      throw new Error(`[${status}] ${msg} (URL: ${reqUrl})`);
     }
   },
 
