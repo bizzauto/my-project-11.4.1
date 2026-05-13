@@ -94,7 +94,7 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: process.env.CORS_ORIGIN || 'https://bizzautoai.com',
   credentials: true,
 }));
 // app.use(compression());
@@ -225,9 +225,9 @@ process.on('uncaughtException', async (error) => {
 
 // Start server
 console.log(`Starting server on ${HOST}:${PORT} in ${NODE_ENV} mode`);
-app.listen(Number(PORT), HOST, () => {
-  console.log(`Server running on http://${HOST}:${PORT} in ${NODE_ENV} mode`);
-  logger.info(`Server running on http://${HOST}:${PORT} in ${NODE_ENV} mode`);
+app.listen(Number(PORT), () => {
+  console.log(`Server running on port ${PORT} in ${NODE_ENV} mode`);
+  logger.info(`Server running on port ${PORT} in ${NODE_ENV} mode`);
 });
 
 // Export authenticate middleware for use in routes
