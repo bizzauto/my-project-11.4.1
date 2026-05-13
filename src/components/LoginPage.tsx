@@ -5,8 +5,6 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Zap, AlertCircle, ArrowLef
 import { useAuthStore } from '../lib/authStore';
 import { useTranslation } from 'react-i18next';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
-
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
@@ -26,24 +24,13 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      if (!data.success) throw new Error(data.error || 'Invalid credentials');
-
-      if (data.requiresTwoFactor) {
-        setShowTwoFactor(true);
-        setTempUserId(data.userId);
-        setIsLoading(false);
-        return;
+      await login(email, password);
+      const role = useAuthStore.getState().user?.role;
+      if (role === 'SUPER_ADMIN') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
       }
-
-      await completeLogin(data.data);
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {
@@ -55,44 +42,8 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-
-    try {
-      const response = await fetch(`${API_URL}/api/auth/verify-2fa`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ userId: tempUserId, code: twoFactorCode }),
-      });
-
-      const data = await response.json();
-      if (!data.success) throw new Error(data.error || 'Invalid code');
-
-      await completeLogin(data.data);
-    } catch (err: any) {
-      setError(err.message || 'Verification failed');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const completeLogin = async (userData: any) => {
-    try {
-      await login(userData);
-
-      // Navigate based on role
-      const role = userData.role;
-      if (role === 'OWNER') {
-        navigate('/dashboard');
-      } else if (role === 'ADMIN' || role === 'MEMBER') {
-        navigate('/dashboard');
-      } else if (role === 'SUPER_ADMIN') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
-    } catch (err) {
-      setError('Failed to complete login');
-    }
+    setError('2FA verification not implemented in this view');
+    setIsLoading(false);
   };
 
   const backToLogin = () => {
