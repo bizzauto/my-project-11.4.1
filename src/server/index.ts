@@ -144,15 +144,18 @@ app.use('/api/two-factor', twoFactorRoutes);
 app.use('/api/webhooks', webhooksRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 
-// Debug: log all requests
-app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.path}`);
-  next();
+// Test GET endpoint
+app.get('/test-get', (req, res) => {
+  res.json({ success: true, method: 'GET' });
 });
 
-// Test POST endpoint
+// Test POST endpoint - no body
+app.post('/test-nobody', (req, res) => {
+  res.json({ success: true, method: 'POST', hasBody: !!req.body });
+});
+
+// Test POST endpoint with body
 app.post('/test', (req, res) => {
-  console.log('Test POST body:', req.body);
   res.json({ success: true, body: req.body });
 });
 
