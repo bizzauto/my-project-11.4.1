@@ -4,6 +4,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Zap, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useAuthStore } from '../lib/authStore';
 import { useTranslation } from 'react-i18next';
+import apiClient from '../lib/api';
+import { authAPI } from '../lib/api';
+
+(window as any).apiClient = apiClient;
+(window as any).authAPI = authAPI;
 
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();
@@ -44,6 +49,20 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
     setError('2FA verification not implemented in this view');
     setIsLoading(false);
+  };
+
+  const testApi = async () => {
+    try {
+      const r = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({email:'test@api.com',password:'Test1234',name:'T',businessName:'B',businessType:'general'})
+      });
+      const text = await r.text();
+      setError('API TEST: Status ' + r.status + ' - ' + text.substring(0,200));
+    } catch(e: any) {
+      setError('API TEST FAILED: ' + e.message);
+    }
   };
 
   const backToLogin = () => {
@@ -135,7 +154,10 @@ const LoginPage: React.FC = () => {
                     <span className="text-sm">{error}</span>
                   </div>
                 )}
-                <button
+                <button onClick={testApi} type="button" className="w-full mb-2 text-xs text-gray-400 hover:text-blue-600 underline">
+                🔧 Test API Connection
+              </button>
+              <button
                   type="submit"
                   disabled={isLoading}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all flex items-center justify-center gap-2"

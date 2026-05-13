@@ -1,20 +1,8 @@
 // API Client for Frontend - Connects to Backend
 import axios from 'axios';
 
-const getApiBaseUrl = () => {
-  const isCapacitor = !!(window as any).Capacitor;
-
-  if (isCapacitor) {
-    return import.meta.env.VITE_API_URL || 'https://your-server.com';
-  }
-
-  return import.meta.env.VITE_API_URL || '';
-};
-
-const API_BASE_URL = getApiBaseUrl();
-
 const apiClient = axios.create({
-  baseURL: `${API_BASE_URL}/api`,
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
   },
