@@ -117,8 +117,8 @@ const ECommercePage: React.FC = () => {
         ecommerceAPI.listProducts(),
         ecommerceAPI.listOrders(),
       ]);
-      setProducts(productsRes.data?.data || productsRes.data || []);
-      setOrders(ordersRes.data?.data || ordersRes.data || []);
+      setProducts(productsRes.data?.data?.products || productsRes.data?.data || []);
+      setOrders(ordersRes.data?.data?.orders || ordersRes.data?.data || []);
     } catch {
       setProducts([]);
       setOrders([]);
