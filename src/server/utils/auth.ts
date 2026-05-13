@@ -2,9 +2,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required. Generate one using: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"');
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-do-not-use-in-production';
+if (!process.env.JWT_SECRET) {
+  console.warn('WARNING: JWT_SECRET not set. Using insecure fallback for development only!');
 }
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || crypto.randomBytes(32).toString('hex');
 

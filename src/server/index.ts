@@ -144,6 +144,11 @@ app.use('/api/two-factor', twoFactorRoutes);
 app.use('/api/webhooks', webhooksRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 
+// Test POST endpoint
+app.post('/test', (req, res) => {
+  res.json({ success: true, body: req.body });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({
