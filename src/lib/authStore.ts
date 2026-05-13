@@ -158,7 +158,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const res = await authAPI.register(data);
       const { user, business, token } = res.data.data;
       localStorage.setItem('token', token);
-      set({ user, business, token, isAuthenticated: true, isLoading: false, onboardingCompleted: false });
+      set({ user, business, token, isAuthenticated: true, isLoading: false, onboardingCompleted: true });
     } catch (error: any) {
       set({ isLoading: false });
       const reqUrl = error.config?.baseURL + error.config?.url || '';

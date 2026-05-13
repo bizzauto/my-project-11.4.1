@@ -29,7 +29,7 @@ const RegisterPage: React.FC = () => {
         businessName: form.businessName,
         businessType: form.businessType,
       });
-      navigate('/onboarding', { replace: true });
+      navigate('/dashboard', { replace: true });
     } catch (err: any) {
       setError(err.message || 'Registration failed');
     }
