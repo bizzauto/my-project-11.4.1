@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Users, Search, Download, MessageSquare, Mail, Phone, Plus, X, Eye, Send, Trash2, MapPin, Package, Truck, CheckCircle, AlertCircle, RefreshCw, ArrowUpRight, TrendingUp, UserPlus, Settings, Zap, MailOpen, Shield } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RT, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const API = import.meta.env.VITE_API_URL || '/api';
 interface Lead { id:string; name:string; phone:string; email?:string; company?:string; source:string; tags:string[]; location?:string; product?:string; supplier?:string; requirement?:string; status:'new'|'contacted'|'qualified'|'won'|'lost'; dealValue?:number; createdAt:string; lastActivity?:string; metadata?:any; }
 interface FormData { name:string; phone:string; email:string; company:string; location:string; product:string; supplier:string; requirement:string; source:string; tags:string; }
 const SC:Record<string,string>={indiamart:'#FF6B00',justdial:'#FFD700',facebook_ads:'#1877F2',instagram_ads:'#E4405F',whatsapp:'#25D366',manual:'#6B7280',website:'#8B5CF6',referral:'#10B981',google_ads:'#4285F4'};
