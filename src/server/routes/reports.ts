@@ -27,7 +27,7 @@ router.get('/overview', async (req: any, res: any) => {
       prisma.message.count({ where: { businessId: req.user.businessId, direction: 'outbound', createdAt: { gte: since } } }),
       prisma.message.count({ where: { businessId: req.user.businessId, direction: 'inbound', createdAt: { gte: since } } }),
       prisma.campaign.count({ where: { businessId: req.user.businessId, startedAt: { gte: since } } }),
-      prisma.socialPost.count({ where: { businessId: req.user.businessId, publishedAt: { gte: since } } }),
+       prisma.post.count({ where: { businessId: req.user.businessId, publishedAt: { gte: since } } }),
       prisma.review.count({ where: { businessId: req.user.businessId, createdAt: { gte: since } } }),
       prisma.contact.count({ where: { businessId: req.user.businessId, stage: 'Won', updatedAt: { gte: since } } }),
       prisma.contact.aggregate({

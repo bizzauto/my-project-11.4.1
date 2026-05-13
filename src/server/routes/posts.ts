@@ -15,8 +15,8 @@ router.get('/', authenticate, async (req: any, res: any) => {
     if (platforms) where.platforms = { has: platforms as string };
 
     const [posts, total] = await Promise.all([
-      prisma.socialPost.findMany({ where, skip, take: Number(limit), orderBy: { createdAt: 'desc' } }),
-      prisma.socialPost.count({ where }),
+      prisma.post.findMany({ where, skip, take: Number(limit), orderBy: { createdAt: 'desc' } }),
+      prisma.post.count({ where }),
     ]);
 
     res.json({ success: true, data: { posts, pagination: { total, page: Number(page), limit: Number(limit) } } });
@@ -28,17 +28,17 @@ router.get('/', authenticate, async (req: any, res: any) => {
 // Create post
 router.post('/', authenticate, async (req: any, res: any) => {
   try {
-    const { content, mediaUrls, platforms, scheduledAt, aiGenerated } = req.body;
+    const { content, platforms, scheduledAt } = req.body;
 
-    const post = await prisma.socialPost.create({
+    const post = await prisma.post.create({
       data: {
         businessId: req.user.businessId,
         content,
-        mediaUrls: mediaUrls || [],
-        platforms,
+        images: [],
+        platforms: platforms || [],
         scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
         status: scheduledAt ? 'scheduled' : 'draft',
-        aiGenerated: aiGenerated || false,
+        createdBy: req.user.id,
       },
     });
 
@@ -51,14 +51,14 @@ router.post('/', authenticate, async (req: any, res: any) => {
 // Update post
 router.put('/:id', authenticate, async (req: any, res: any) => {
   try {
-    const post = await prisma.socialPost.findFirst({ where: { id: req.params.id, businessId: req.user.businessId } });
+    const post = await prisma.post.findFirst({ where: { id: req.params.id, businessId: req.user.businessId } });
     if (!post) return res.status(404).json({ success: false, error: 'Post not found' });
 
     if (post.status !== 'draft' && post.status !== 'scheduled') {
       return res.status(400).json({ success: false, error: 'Cannot publish post' });
     }
 
-    const updated = await prisma.socialPost.update({ where: { id: req.params.id }, data: req.body });
+    const updated = await prisma.post.update({ where: { id: req.params.id }, data: req.body });
     res.json({ success: true, data: updated });
   } catch (error: any) {
     res.status(500).json({ success: false, error: 'Failed to update post', details: error.message });
@@ -68,10 +68,10 @@ router.put('/:id', authenticate, async (req: any, res: any) => {
 // Delete post
 router.delete('/:id', authenticate, async (req: any, res: any) => {
   try {
-    const post = await prisma.socialPost.findFirst({ where: { id: req.params.id, businessId: req.user.businessId } });
+    const post = await prisma.post.findFirst({ where: { id: req.params.id, businessId: req.user.businessId } });
     if (!post) return res.status(404).json({ success: false, error: 'Post not found' });
 
-    await prisma.socialPost.delete({ where: { id: req.params.id } });
+    await prisma.post.delete({ where: { id: req.params.id } });
     res.json({ success: true, message: 'Post deleted' });
   } catch (error: any) {
     res.status(500).json({ success: false, error: 'Failed to delete post', details: error.message });
@@ -82,10 +82,10 @@ router.delete('/:id', authenticate, async (req: any, res: any) => {
 router.post('/:id/schedule', authenticate, async (req: any, res: any) => {
   try {
     const { scheduledAt } = req.body;
-    const post = await prisma.socialPost.findFirst({ where: { id: req.params.id, businessId: req.user.businessId } });
+    const post = await prisma.post.findFirst({ where: { id: req.params.id, businessId: req.user.businessId } });
     if (!post) return res.status(404).json({ success: false, error: 'Post not found' });
 
-    const updated = await prisma.socialPost.update({
+    const updated = await prisma.post.update({
       where: { id: req.params.id },
       data: {
         scheduledAt: new Date(scheduledAt),
@@ -101,10 +101,10 @@ router.post('/:id/schedule', authenticate, async (req: any, res: any) => {
 // Publish post
 router.post('/:id/publish', authenticate, async (req: any, res: any) => {
   try {
-    const post = await prisma.socialPost.findFirst({ where: { id: req.params.id, businessId: req.user.businessId } });
+    const post = await prisma.post.findFirst({ where: { id: req.params.id, businessId: req.user.businessId } });
     if (!post) return res.status(404).json({ success: false, error: 'Post not found' });
 
-    const updated = await prisma.socialPost.update({
+    const updated = await prisma.post.update({
       where: { id: req.params.id },
       data: {
         status: 'published',

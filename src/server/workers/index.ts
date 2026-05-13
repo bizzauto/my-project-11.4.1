@@ -136,7 +136,7 @@ const socialPublishWorker = new Worker(
   async (job: Job) => {
     const { postId, businessId } = job.data;
 
-    const post = await prisma.socialPost.findUnique({
+    const post = await prisma.post.findUnique({
       where: { id: postId },
     });
 
@@ -166,12 +166,12 @@ const socialPublishWorker = new Worker(
     }
 
     // Update post status
-    await prisma.socialPost.update({
+    await prisma.post.update({
       where: { id: postId },
       data: {
         status: 'published',
         publishedAt: new Date(),
-        platformPostIds: results as any,
+        publishedIds: results as any,
       },
     });
 

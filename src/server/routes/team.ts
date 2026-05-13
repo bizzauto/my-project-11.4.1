@@ -519,9 +519,6 @@ router.get('/audit-logs', async (req: any, res: any) => {
         take: parseInt(limit),
         orderBy: { createdAt: 'desc' },
         include: {
-          user: {
-            select: { id: true, name: true, email: true },
-          },
         },
       }),
       prisma.auditLog.count({ where }),
@@ -572,9 +569,9 @@ router.get('/audit-logs/export', async (req: any, res: any) => {
       const headers = ['Date', 'User', 'Action', 'Details', 'IP Address'];
       const rows = logs.map((log: any) => [
         log.createdAt,
-        log.user?.name || log.user?.email || 'System',
+        log.userEmail || 'System',
         log.action,
-        JSON.stringify(log.details),
+        JSON.stringify(log.description || {}),
         log.ipAddress || 'N/A',
       ]);
 

@@ -36,7 +36,7 @@ export default function SettingsPage() {
     const fetch2FAStatus = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/api/2fa/status`, {
+        const response = await fetch('/api/two-factor/status', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
@@ -62,7 +62,7 @@ export default function SettingsPage() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/api/2fa/disable`, {
+      const response = await fetch('/api/two-factor/disable', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

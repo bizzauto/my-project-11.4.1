@@ -30,7 +30,7 @@ export default function TwoFactorSetupModal({ isOpen, onClose, onComplete }: Two
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/api/2fa/setup`, {
+      const response = await fetch('/api/two-factor/setup', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -60,7 +60,7 @@ export default function TwoFactorSetupModal({ isOpen, onClose, onComplete }: Two
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/api/2fa/verify`, {
+      const response = await fetch('/api/two-factor/verify', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

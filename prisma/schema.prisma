@@ -79,6 +79,29 @@ model Business {
   waWebhookSecret String?
   waPhoneNumber   String?
 
+  // Social Media
+  fbPageId        String?
+  fbAccessToken   String?
+  igUserId        String?
+  igAccessToken   String?
+  linkedinPageId  String?
+  linkedinAccessToken String?
+  twitterUserId   String?
+  twitterAccessToken String?
+
+  // Google Business Profile
+  gbpAccessToken  String?
+  gbpAccountId    String?
+  gbpLocationId   String?
+
+  // Auto Reply
+  autoReplyEnabled  Boolean @default(false)
+  autoReplyMessage  String?
+  businessHours     Json?
+
+  // Legacy fields
+  totalMessages   Int @default(0)
+
   // AI Credits
   aiCreditsUsed      Int @default(0)
   aiCreditsLimit     Int @default(100)
@@ -111,6 +134,11 @@ model Business {
   workflowRuns    WorkflowRun[]
   invoices        Invoice[]
   leadScores      LeadScore[]
+  webhooks        Webhook[]
+  apiKeys         ApiKey[]
+  chatbotFlows    ChatbotFlow[]
+  scheduledMessages ScheduledMessage[]
+  autoReplies     AutoReply[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -227,6 +255,8 @@ model Contact {
   orders       Order[]
   leadScores   LeadScore[]
   ledgerEntries LedgerEntry[]
+  scheduledMessages ScheduledMessage[]
+  dripQueueItems DripQueue[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -416,9 +446,14 @@ model Campaign {
   read          Int @default(0)
   clicked       Int @default(0)
   failed        Int @default(0)
+  totalDelivered Int @default(0)
+  totalRead     Int @default(0)
+  totalReplied  Int @default(0)
+  totalFailed   Int @default(0)
 
   // Relations
   messages Message[]
+  dripQueueItems DripQueue[]
 
   // Error tracking
   errors Json[] // [{ contactId, error, timestamp }]
@@ -732,9 +767,9 @@ model Post {
   businessId String
   business   Business @relation(fields: [businessId], references: [id])
 
-  content String
-  images  String[]
-  link    String?
+  content   String
+  mediaUrls String[]
+  link      String?
 
   // Platform & Status
   platforms String[] // facebook, instagram, linkedin, twitter
@@ -1124,5 +1159,101 @@ model WhiteLabel {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-@@index([businessId])
+  @@index([businessId])
+}
+
+// ==================== WEBHOOKS ====================
+model Webhook {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+  url        String
+  events     Json
+  secret     String
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@index([businessId])
+}
+
+// ==================== API KEYS ====================
+model ApiKey {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id])
+  name        String
+  key         String   @unique
+  permissions Json
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  isActive    Boolean  @default(true)
+  createdBy   String
+  createdAt   DateTime @default(now())
+  @@index([businessId])
+}
+
+// ==================== CHATBOT FLOWS ====================
+model ChatbotFlow {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+  name       String
+  trigger    String   @default("keyword")
+  keywords   String[]
+  response   String
+  aiEnabled  Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@index([businessId])
+}
+
+// ==================== SCHEDULED MESSAGES ====================
+model ScheduledMessage {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id])
+  contactId   String?
+  contact     Contact? @relation(fields: [contactId], references: [id])
+  phone       String
+  content     String
+  type        String   @default("text")
+  scheduledAt DateTime
+  status      String   @default("pending")
+  error       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([businessId])
+  @@index([status])
+}
+
+// ==================== DRIP QUEUE ====================
+model DripQueue {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  contactId  String
+  contact    Contact  @relation(fields: [contactId], references: [id])
+  step       Int      @default(0)
+  sendAt     DateTime
+  status     String   @default("pending")
+  sentAt     DateTime?
+  error      String?
+  createdAt  DateTime @default(now())
+  @@index([campaignId])
+  @@index([status])
+}
+
+// ==================== AUTO REPLY ====================
+model AutoReply {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+  keyword    String
+  response   String
+  matchType  String   @default("exact")
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@index([businessId])
 }
