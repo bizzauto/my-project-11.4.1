@@ -456,7 +456,7 @@ const QRConnectView: React.FC<{
                     />
                   </div>
                   <button
-                    onClick={() => { onEvolutionConfigChange({ ...evolutionConfig, configured: true }); setShowEvolutionForm(false); }}
+                    onClick={async () => { await onEvolutionConfigChange({ ...evolutionConfig, configured: true }); setShowEvolutionForm(false); }}
                     className="w-full px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold"
                   >
                     💾 Save Configuration
@@ -2149,6 +2149,7 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
         await evolutionAPI.createInstance({
           instanceName,
           baseUrl: evolutionConfig.baseUrl,
+          apiKey: evolutionConfig.apiKey,
         });
       } catch {
         // Instance may already exist, continue
