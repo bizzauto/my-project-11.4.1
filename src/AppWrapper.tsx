@@ -51,7 +51,7 @@ import EmailMarketingPage from './components/EmailMarketingPage';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isInitialized, onboardingCompleted } = useAuthStore();
+  const { isAuthenticated, isInitialized } = useAuthStore();
 
   if (!isInitialized) {
     return <PageSkeleton />;
@@ -61,9 +61,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     return <Navigate to="/login" replace />;
   }
 
-  // Check if onboarding is required (only redirect if not already on /onboarding)
-  if (!onboardingCompleted && !window.location.pathname.startsWith('/onboarding')) {
-    return <Navigate to="/onboarding" replace />;
+  // Redirect to pricing if plan not selected yet
+  const planSelected = localStorage.getItem('planSelected') === 'true';
+  if (!planSelected && !window.location.pathname.startsWith('/pricing')) {
+    return <Navigate to="/pricing" replace />;
   }
 
   return <>{children}</>;

@@ -199,7 +199,12 @@ export default function PricingPage({ onNavigate }: PricingPageProps) {
 
   const handleSelectPlan = async (planId: string, period: 'month' | 'year') => {
     if (planId === 'FREE') {
-      toast.info('You are already on the Free plan');
+      localStorage.setItem('planSelected', 'true');
+      if (onNavigate) {
+        setTimeout(() => onNavigate('dashboard'), 500);
+      } else {
+        window.location.href = '/dashboard';
+      }
       return;
     }
 
@@ -230,6 +235,7 @@ export default function PricingPage({ onNavigate }: PricingPageProps) {
             });
 
             if (verifyResponse.data.success) {
+              localStorage.setItem('planSelected', 'true');
               toast.success('Payment successful! Subscription activated.');
               if (onNavigate) {
                 setTimeout(() => onNavigate('dashboard'), 1500);
