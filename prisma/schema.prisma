@@ -33,6 +33,10 @@ model User {
   twoFactorEnabled     Boolean @default(false)
   twoFactorBackupCodes String? 
 
+  // Password Reset
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+
   // CSRF Token
   csrfToken          String?
   csrfTokenExpiresAt DateTime?
@@ -100,8 +104,12 @@ model Business {
   autoReplyMessage  String?
   businessHours     Json?
 
+  // Business status
+  isActive        Boolean @default(true)
+
   // Legacy fields
   totalMessages   Int @default(0)
+  totalContacts   Int @default(0)
 
   // AI Credits
   aiCreditsUsed      Int @default(0)
@@ -186,6 +194,7 @@ model Subscription {
   currentPeriodStart DateTime?
   currentPeriodEnd   DateTime?
   cancelledAt        DateTime?
+  cancelledBy        String?
 
   // Metadata
   metadata Json?
@@ -715,8 +724,9 @@ model Document {
 
   // Status
   status String @default("draft") // draft, generated, sent, viewed, signed
-  sentVia String? // email, whatsapp
+  sentVia String[] // email, whatsapp
   publicLink String? // Public URL
+  publicLinkExpiry DateTime?
 
   // Client
   clientName  String?
@@ -823,6 +833,7 @@ model Review {
   // Status
   isPublished Boolean @default(true)
   isFeatured  Boolean @default(false)
+  isRead      Boolean @default(false)
 
   reviewDate DateTime?
   createdAt  DateTime  @default(now())
@@ -1201,8 +1212,12 @@ model ChatbotFlow {
   name       String
   trigger    String   @default("keyword")
   keywords   String[]
+  triggerValue String?
   response   String
   aiEnabled  Boolean  @default(false)
+  nodes      Json?
+  edges      Json?
+  flowData   Json?
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -1235,7 +1250,10 @@ model DripQueue {
   campaign   Campaign @relation(fields: [campaignId], references: [id])
   contactId  String
   contact    Contact  @relation(fields: [contactId], references: [id])
+  businessId String?
   step       Int      @default(0)
+  stepIndex  Int      @default(0)
+  stepData   Json?
   sendAt     DateTime
   status     String   @default("pending")
   sentAt     DateTime?

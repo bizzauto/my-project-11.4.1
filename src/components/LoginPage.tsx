@@ -47,8 +47,23 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    setError('2FA verification not implemented in this view');
-    setIsLoading(false);
+    try {
+      const res = await fetch('/api/two-factor/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: tempUserId, token: twoFactorCode }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        await completeLogin(data.data);
+      } else {
+        setError(data.error || 'Invalid code');
+      }
+    } catch {
+      setError('Verification failed');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const testApi = async () => {

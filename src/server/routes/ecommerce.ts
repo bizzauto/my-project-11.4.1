@@ -14,7 +14,7 @@ router.get('/store', async (req: any, res: any) => {
     });
     if (!store) {
       store = await prisma.eCommerceStore.create({
-        data: { businessId: req.user.businessId, platform: 'custom' },
+        data: { businessId: req.user.businessId, provider: 'custom' },
       });
     }
     res.json({ success: true, data: store });
@@ -28,7 +28,7 @@ router.put('/store', requireRole('OWNER', 'ADMIN'), async (req: any, res: any) =
     const store = await prisma.eCommerceStore.upsert({
       where: { businessId: req.user.businessId },
       update: req.body,
-      create: { businessId: req.user.businessId, ...req.body, platform: req.body.platform || 'custom' },
+      create: { businessId: req.user.businessId, ...req.body, provider: req.body.provider || 'custom' },
     });
     res.json({ success: true, data: store });
   } catch (error: any) {

@@ -64,10 +64,7 @@ router.post('/password-reset', async (req: Request, res: Response) => {
 
     await prisma.user.update({
       where: { id: user.id },
-      data: {
-        // Store in a JSON field or create a password reset table
-        // For now, using a simple approach with additional field
-      },
+      data: { resetToken, resetTokenExpiry },
     });
 
     // Send reset email

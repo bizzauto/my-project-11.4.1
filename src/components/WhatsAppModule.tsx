@@ -584,7 +584,7 @@ const ChatView: React.FC<{
   const handleScheduleSend = async () => {
     if (!message.trim() || !selectedContact || !scheduleDate) return;
     try {
-      await apiClient.post('/api/whatsapp/schedule', {
+      await apiClient.post('/whatsapp/schedule', {
         phone: selectedContact.phone.replace(/\s/g, ''),
         contactId: selectedContact.id,
         type: 'text',
@@ -1837,7 +1837,7 @@ const ScheduledMessagesView: React.FC = () => {
   const fetchScheduled = async () => {
     setLoading(true);
     try {
-      const res = await apiClient.get(`/api/whatsapp/scheduled${filter !== 'all' ? `?status=${filter}` : ''}`);
+      const res = await apiClient.get(`/whatsapp/scheduled${filter !== 'all' ? `?status=${filter}` : ''}`);
       if (res.data?.success) setMessages(res.data.data.messages || []);
     } catch {
       // Fallback: show empty state
@@ -1851,7 +1851,7 @@ const ScheduledMessagesView: React.FC = () => {
   const handleSchedule = async () => {
     if (!form.phone || !form.scheduledAt || (!form.content && !form.templateName)) return;
     try {
-      await apiClient.post('/api/whatsapp/schedule', form);
+      await apiClient.post('/whatsapp/schedule', form);
       setForm({ phone: '', content: '', type: 'text', scheduledAt: '', templateName: '' });
       setShowScheduleForm(false);
       fetchScheduled();
@@ -1862,7 +1862,7 @@ const ScheduledMessagesView: React.FC = () => {
 
   const handleCancel = async (id: string) => {
     try {
-      await apiClient.patch(`/api/whatsapp/scheduled/${id}/cancel`);
+      await apiClient.patch(`/whatsapp/scheduled/${id}/cancel`);
       fetchScheduled();
     } catch {
       // Error handled silently

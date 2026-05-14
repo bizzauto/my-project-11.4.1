@@ -57,7 +57,7 @@ export default function LeadGenerationPage(){
  const fetchImConfig = useCallback(async () => {
    try {
      const token = localStorage.getItem('token');
-     const r = await fetch(`${API}/indiamart/config`, { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(`${API}/indiamart-email/config`, { headers: { Authorization: `Bearer ${token}` } });
      const d = await r.json();
      if (d.success) { setImConfig(d.data); if (d.data?.spreadsheetId) setImForm(prev => ({ ...prev, spreadsheetId: d.data.spreadsheetId })); }
    } catch (e) { console.error('Failed to fetch IM config:', e); }
@@ -67,7 +67,7 @@ export default function LeadGenerationPage(){
    setImSyncing(true); setSyncResult(null);
    try {
      const token = localStorage.getItem('token');
-     const r = await fetch(`${API}/indiamart/sync`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+     const r = await fetch(`${API}/indiamart-email/sync`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
      const d = await r.json();
      if (d.success) { setSyncResult(d.data); toast_('Sync complete!', 'success'); fetchLeads(); } else { toast_(d.error || 'Sync failed', 'error'); }
    } catch (e: any) { toast_(e.message || 'Sync failed', 'error'); }
@@ -78,7 +78,7 @@ export default function LeadGenerationPage(){
    setImTesting(true);
    try {
      const token = localStorage.getItem('token');
-     const r = await fetch(`${API}/indiamart/connect`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(imForm) });
+     const r = await fetch(`${API}/indiamart-email/connect`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(imForm) });
      const d = await r.json();
      if (d.success) toast_('Connection successful!', 'success'); else toast_(d.error || 'Connection failed', 'error');
    } catch (e: any) { toast_(e.message || 'Connection test failed', 'error'); }
@@ -90,7 +90,7 @@ export default function LeadGenerationPage(){
    setImTesting(true);
    try {
      const token = localStorage.getItem('token');
-     const r = await fetch(`${API}/indiamart/setup`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(imForm) });
+     const r = await fetch(`${API}/indiamart-email/setup`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(imForm) });
      const d = await r.json();
      if (d.success) { toast_('IndiaMART email connected!', 'success'); setShowImSettings(false); fetchImConfig(); } else { toast_(d.error || 'Failed to save', 'error'); }
    } catch (e: any) { toast_(e.message || 'Failed to save config', 'error'); }

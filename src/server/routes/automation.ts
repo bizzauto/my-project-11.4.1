@@ -55,12 +55,12 @@ router.get('/rules/:id', async (req: any, res: any) => {
 // Create automation rule
 router.post('/rules', requireRole('OWNER', 'ADMIN'), async (req: any, res: any) => {
   try {
-    const { name, description, triggerType, isActive } = req.body;
+    const { name, description, trigger, isActive } = req.body;
 
-    if (!name || !triggerType) {
+    if (!name || !trigger) {
       return res.status(400).json({
         success: false,
-        error: 'Name and triggerType are required',
+        error: 'Name and trigger are required',
       });
     }
 
@@ -69,7 +69,7 @@ router.post('/rules', requireRole('OWNER', 'ADMIN'), async (req: any, res: any) 
         businessId: req.user.businessId,
         name,
         description: description || '',
-        triggerType,
+        trigger,
         isActive: false,
       },
     });
@@ -253,7 +253,7 @@ router.get('/templates', async (req: any, res: any) => {
     const templates = await prisma.chatbotFlow.findMany({
       where: {
         businessId: req.user.businessId,
-        triggerType: 'auto_reply',
+        trigger: 'auto_reply',
       },
       orderBy: { createdAt: 'desc' },
     });

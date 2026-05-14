@@ -294,9 +294,7 @@ router.put('/businesses/:id/status', async (req: any, res: any) => {
 
     const business = await prisma.business.update({
       where: { id: req.params.id },
-      data: {
-        // We'll use a metadata field or update all users' isActive
-      },
+      data: { isActive },
     });
 
     // Update all users in this business

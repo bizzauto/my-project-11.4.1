@@ -145,7 +145,17 @@ router.post('/pipelines', authenticate, async (req: any, res: any) => {
     const { name, stages } = req.body;
 
     const pipeline = await prisma.pipeline.create({
-      data: { businessId: req.user.businessId, name, stages: stages || [] },
+      data: {
+        businessId: req.user.businessId,
+        name,
+        stages: stages?.length ? {
+          create: stages.map((s: any, i: number) => ({
+            name: s.name || s,
+            order: s.order || i,
+            color: s.color,
+          })),
+        } : undefined,
+      },
     });
 
     res.status(201).json({ success: true, data: pipeline });

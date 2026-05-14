@@ -92,7 +92,6 @@ router.get('/:id', authenticate, async (req: any, res: any) => {
           take: 50,
         },
         pipeline: true,
-        stage: true,
       },
     });
 
