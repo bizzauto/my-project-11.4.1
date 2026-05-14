@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Download, Share2, Sparkles, Palette, Type, Image,
   Wand2, RefreshCw, Layout, Eye, Clock, Heart,
@@ -80,15 +80,18 @@ const CreativeGeneratorPage: React.FC = () => {
     setProductImage(null);
   };
 
-  // Fetch templates and history on mount
+  const mountedRef = useRef(true);
   useEffect(() => {
+    mountedRef.current = true;
     fetchTemplates();
     fetchHistory();
+    return () => { mountedRef.current = false; };
   }, []);
 
   const fetchTemplates = async () => {
     try {
       const res = await postersAPI.list();
+      if (!mountedRef.current) return;
       const data = res.data?.data || res.data || [];
       if (Array.isArray(data) && data.length > 0) {
         // Map backend PosterTemplate to frontend Template interface
@@ -99,10 +102,12 @@ const CreativeGeneratorPage: React.FC = () => {
           gradient: getGradientForCategory(t.category),
           category: t.category,
         }));
+        if (!mountedRef.current) return;
         setTemplates(mappedTemplates);
         setSelectedTemplate(mappedTemplates[0]);
       }
     } catch (error) {
+      if (!mountedRef.current) return;
       console.error('Failed to fetch templates:', error);
       // Set default templates if API fails
       const defaultTemplates = [
@@ -113,12 +118,13 @@ const CreativeGeneratorPage: React.FC = () => {
         { id: '5', name: 'Flash Sale', emoji: '⚡', gradient: 'from-blue-600 via-indigo-600 to-purple-600', category: 'Offer' },
         { id: '6', name: 'Grand Opening', emoji: '🏪', gradient: 'from-amber-500 via-orange-500 to-red-500', category: 'Offer' },
         { id: '7', name: 'New Arrival', emoji: '🆕', gradient: 'from-violet-500 via-purple-500 to-fuchsia-500', category: 'Product' },
-        { id: '8', name: 'Summer Deal', emoji: '☀️', gradient: 'from-yellow-400 via-orange-400 to-red-400', category: 'Seasonal' },
+        { id: '8', name: 'Summer Sale', emoji: '☀️', gradient: 'from-yellow-400 via-orange-400 to-red-400', category: 'Seasonal' },
         { id: '9', name: 'Monsoon Sale', emoji: '🌧️', gradient: 'from-slate-500 via-blue-500 to-indigo-500', category: 'Seasonal' },
       ];
       setTemplates(defaultTemplates);
       setSelectedTemplate(defaultTemplates[0] || null);
     } finally {
+      if (!mountedRef.current) return;
       setLoading(false);
     }
   };
@@ -152,6 +158,7 @@ const CreativeGeneratorPage: React.FC = () => {
   const fetchHistory = async () => {
     try {
       const res = await postersAPI.list();
+      if (!mountedRef.current) return;
       const data = res.data?.data || res.data || [];
       if (Array.isArray(data)) {
         setHistory(data.map((item: any) => ({
@@ -162,6 +169,7 @@ const CreativeGeneratorPage: React.FC = () => {
         })));
       }
     } catch (error) {
+      if (!mountedRef.current) return;
       console.error('Failed to fetch history:', error);
       setHistory([]);
     }
@@ -193,10 +201,13 @@ const CreativeGeneratorPage: React.FC = () => {
     }
   };
 
+  const copyTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(copyTimer.current), []);
   const handleCopyText = (text: string) => {
     navigator.clipboard?.writeText(text);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    clearTimeout(copyTimer.current);
+    copyTimer.current = setTimeout(() => setCopied(false), 2000);
   };
 
   const handleSaveToHistory = async () => {
@@ -227,7 +238,6 @@ const CreativeGeneratorPage: React.FC = () => {
 
   const handleDownload = () => {
     // In production, this would call the download API
-    console.log('Downloading poster...');
   };
 
   if (loading) {

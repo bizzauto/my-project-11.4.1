@@ -297,7 +297,7 @@ export class GoogleSheetsService {
       },
     });
 
-    const spreadsheetId = spreadsheet.data.spreadsheetId!;
+    const spreadsheetId = spreadsheet.data.spreadsheetId || '';
 
     // Add headers to Contacts sheet
     const headers = [

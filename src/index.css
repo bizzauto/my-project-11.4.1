@@ -385,9 +385,8 @@ html {
 }
 
 /* Prevent pull-to-refresh and overscroll on mobile */
-html, body {
+html {
   overscroll-behavior: none;
-  -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
 }
 

@@ -1,5 +1,6 @@
 // API Client for Frontend - Connects to Backend
 import axios from 'axios';
+import { safeGetItem, safeRemoveItem } from './storage';
 
 const apiClient = axios.create({
   baseURL: '/api',
@@ -11,8 +12,8 @@ const apiClient = axios.create({
 // Request interceptor - Add auth token
 apiClient.interceptors.request.use((config) => {
   const fullUrl = `${config.baseURL || ''}${config.url || ''}`;
-  console.log('%c[API]', 'color:green;font-weight:bold', config.method?.toUpperCase(), fullUrl);
-  const token = localStorage.getItem('token');
+  if (process.env.NODE_ENV !== 'production') console.log('%c[API]', 'color:green;font-weight:bold', config.method?.toUpperCase(), fullUrl);
+  const token = safeGetItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -24,7 +25,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
+      safeRemoveItem('token');
       // Don't use window.location.href - app uses tab-based navigation
       // The auth store will handle redirect via isAuthenticated state
     }

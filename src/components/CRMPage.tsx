@@ -177,10 +177,12 @@ export default function CRMPage() {
   ];
 
   useEffect(() => {
+    let mounted = true;
     const fetchData = async () => {
       try {
         setLoading(true);
         const [contactsRes] = await Promise.all([contactsAPI.list()]);
+        if (!mounted) return;
         const contactsData = contactsRes.data?.data || contactsRes.data || [];
         if (contactsData.length > 0) {
           setContacts(contactsData);
@@ -192,16 +194,18 @@ export default function CRMPage() {
           setAppointments(demoAppointments);
         }
       } catch {
+        if (!mounted) return;
         setContacts(demoContacts);
         setDeals(demoDeals);
         setInvoices(demoInvoices);
         setLedger(demoLedger);
         setAppointments(demoAppointments);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
     fetchData();
+    return () => { mounted = false; };
   }, []);
 
   const filteredContacts = contacts.filter(c =>

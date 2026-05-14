@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Building2, Users, MessageSquare, TrendingUp,
   ArrowUpRight, ArrowDownRight, Eye, Shield, DollarSign, RefreshCw
@@ -127,6 +127,7 @@ const SuperAdminDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async (isRefresh = false) => {
+    if (!mountedRef.current) return;
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
     setError(null);
@@ -137,6 +138,8 @@ const SuperAdminDashboard: React.FC = () => {
         superAdminAPI.getGrowth(),
         superAdminAPI.getBusinesses({ limit: 10 }),
       ]);
+
+      if (!mountedRef.current) return;
 
       // Stats
       if (statsRes.status === 'fulfilled' && statsRes.value?.data) {
@@ -159,18 +162,24 @@ const SuperAdminDashboard: React.FC = () => {
         setBusinesses(FALLBACK_BUSINESSES);
       }
     } catch (err: any) {
+      if (!mountedRef.current) return;
       setError(err?.message || 'Failed to fetch dashboard data');
       setStats(FALLBACK_STATS);
       setGrowthData(FALLBACK_GROWTH);
       setBusinesses(FALLBACK_BUSINESSES);
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (mountedRef.current) {
+        setLoading(false);
+        setRefreshing(false);
+      }
     }
   }, []);
 
+  const mountedRef = useRef(true);
   useEffect(() => {
+    mountedRef.current = true;
     fetchData();
+    return () => { mountedRef.current = false; };
   }, [fetchData]);
 
   // Build plan data from stats

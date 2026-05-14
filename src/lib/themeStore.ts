@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { safeGetItem, safeSetItem } from './storage';
 
 interface ThemeState {
   isDark: boolean;
@@ -7,7 +8,7 @@ interface ThemeState {
 }
 
 // Initialize theme from localStorage
-const initialDark = localStorage.getItem('theme') === 'dark';
+const initialDark = safeGetItem('theme') === 'dark';
 if (typeof document !== 'undefined') {
   document.documentElement.classList.toggle('dark', initialDark);
 }
@@ -17,12 +18,12 @@ export const useThemeStore = create<ThemeState>((set) => ({
   toggle: () =>
     set((state) => {
       const next = !state.isDark;
-      localStorage.setItem('theme', next ? 'dark' : 'light');
+      safeSetItem('theme', next ? 'dark' : 'light');
       document.documentElement.classList.toggle('dark', next);
       return { isDark: next };
     }),
   setDark: (val) => {
-    localStorage.setItem('theme', val ? 'dark' : 'light');
+    safeSetItem('theme', val ? 'dark' : 'light');
     document.documentElement.classList.toggle('dark', val);
     set({ isDark: val });
   },

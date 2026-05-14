@@ -1,5 +1,6 @@
 import { AxiosError } from 'axios';
 import apiClient from './api';
+import { safeGetItem } from './storage';
 
 // Retry logic for failed requests
 export const retryRequest = async <T>(
@@ -41,13 +42,13 @@ export const formatErrorMessage = (error: unknown, fallback: string = 'An error 
 
 // Check if user is authenticated
 export const isAuthenticated = (): boolean => {
-  return !!localStorage.getItem('token') || localStorage.getItem('demoMode') === 'true';
+  return !!safeGetItem('token') || safeGetItem('demoMode') === 'true';
 };
 
 // Get current user role
 export const getUserRole = (): string | null => {
   try {
-    const token = localStorage.getItem('token');
+    const token = safeGetItem('token');
     if (!token) return null;
     
     const payload = JSON.parse(atob(token.split('.')[1]));

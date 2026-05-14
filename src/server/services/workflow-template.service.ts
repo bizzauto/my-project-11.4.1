@@ -100,7 +100,7 @@ class WorkflowService {
     const results: any[] = [];
     for (const action of template.actions) {
       if (action.delay) {
-        await new Promise(r => setTimeout(r, action.delay! * 1000)); // Demo delay
+        await new Promise(r => setTimeout(r, action.delay * 1000)); // Demo delay
       }
 
       // Simulate action execution

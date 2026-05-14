@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Calendar, Clock, Plus, ChevronLeft, ChevronRight, User, MapPin, Phone, X, Check } from 'lucide-react';
 import apiClient from '../lib/api';
 
@@ -68,10 +68,12 @@ const AppointmentsPage: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const mountedRef = useRef(true);
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await appointmentsAPI.list();
+      if (!mountedRef.current) return;
       const data = response.data?.data?.appointments || response.data?.data || response.data || [];
       // Map backend data to frontend interface
       const mappedData = data.map((a: any) => ({
@@ -87,17 +89,21 @@ const AppointmentsPage: React.FC = () => {
         location: a.location || a.meetingUrl || '',
         notes: a.notes || '',
       }));
+      if (!mountedRef.current) return;
       setAppointments(mappedData);
     } catch {
+      if (!mountedRef.current) return;
       // API not ready yet - keep empty array
       setAppointments([]);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     fetchData();
+    return () => { mountedRef.current = false; };
   }, [fetchData]);
 
   const year = currentDate.getFullYear();

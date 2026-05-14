@@ -23,7 +23,8 @@ export const authenticate = async (
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    const jwtSecret = process.env.JWT_SECRET || 'dev-jwt-secret-do-not-use-in-production';
+    const decoded = jwt.verify(token, jwtSecret) as any;
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },

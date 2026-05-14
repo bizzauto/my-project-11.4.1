@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuthStore } from './lib/authStore';
+import { safeGetItem } from './lib/storage';
 import { MobileApp } from './lib/capacitor-app';
 import PageSkeleton from './components/PageSkeleton';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -62,7 +63,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }
 
   // Redirect to pricing if plan not selected yet
-  const planSelected = localStorage.getItem('planSelected') === 'true';
+  const planSelected = safeGetItem('planSelected') === 'true';
   if (!planSelected && !window.location.pathname.startsWith('/pricing')) {
     return <Navigate to="/pricing" replace />;
   }

@@ -29,7 +29,8 @@ export function setupWebSocket(httpServer: HttpServer) {
         return next(new Error('Authentication required'));
       }
 
-      const decoded = jwt.verify(token as string, process.env.JWT_SECRET!) as any;
+      const jwtSecret = process.env.JWT_SECRET || 'dev-jwt-secret-do-not-use-in-production';
+      const decoded = jwt.verify(token as string, jwtSecret) as any;
       socket.userId = decoded.userId;
       socket.businessId = decoded.businessId;
       socket.plan = decoded.plan || 'FREE';
@@ -40,7 +41,7 @@ export function setupWebSocket(httpServer: HttpServer) {
   });
 
   io.on('connection', async (socket: AuthenticatedSocket) => {
-    console.log(`🔌 User connected: ${socket.userId} (Business: ${socket.businessId})`);
+    if (process.env.NODE_ENV !== 'production') console.log(`🔌 User connected: ${socket.userId} (Business: ${socket.businessId})`);
 
     // Join user's business room
     if (socket.businessId) {
@@ -122,7 +123,7 @@ export function setupWebSocket(httpServer: HttpServer) {
 
     // Handle disconnect
     socket.on('disconnect', async () => {
-      console.log(`🔌 User disconnected: ${socket.userId}`);
+      if (process.env.NODE_ENV !== 'production') console.log(`🔌 User disconnected: ${socket.userId}`);
       if (redisClient) {
         await redisClient?.hDel(`socket:${socket.userId}`, 'socketId');
       }

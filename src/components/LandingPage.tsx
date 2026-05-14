@@ -28,13 +28,15 @@ const useCounter = (end: number, duration = 2000, start = false) => {
   useEffect(() => {
     if (!start) return;
     let startTime: number;
+    let rafId: number;
     const step = (ts: number) => {
       if (!startTime) startTime = ts;
       const p = Math.min((ts - startTime) / duration, 1);
       setCount(Math.floor(p * end));
-      if (p < 1) requestAnimationFrame(step);
+      if (p < 1) rafId = requestAnimationFrame(step);
     };
-    requestAnimationFrame(step);
+    rafId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafId);
   }, [end, duration, start]);
   return count;
 };

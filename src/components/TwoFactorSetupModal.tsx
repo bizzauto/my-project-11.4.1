@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useToast } from './Toast';
 import { X, QrCode, Lock, Shield, Copy, Check, Key, AlertTriangle } from 'lucide-react';
+import { safeGetItem } from '../lib/storage';
 
 interface TwoFactorSetupModalProps {
   isOpen: boolean;
@@ -20,16 +21,19 @@ export default function TwoFactorSetupModal({ isOpen, onClose, onComplete }: Two
 
   const API_URL = import.meta.env.VITE_API_URL || '';
 
+  const mountedRef = useRef(true);
   useEffect(() => {
+    mountedRef.current = true;
     if (isOpen && step === 'setup') {
       fetchSetupData();
     }
+    return () => { mountedRef.current = false; };
   }, [isOpen, step]);
 
   const fetchSetupData = async () => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = safeGetItem('token');
       const response = await fetch('/api/two-factor/setup', {
         method: 'POST',
         headers: {
@@ -38,6 +42,7 @@ export default function TwoFactorSetupModal({ isOpen, onClose, onComplete }: Two
       });
 
       const data = await response.json();
+      if (!mountedRef.current) return;
       if (data.success) {
         setQrCode(data.data.qrCode);
         setSecret(data.data.manualEntryKey);
@@ -45,9 +50,10 @@ export default function TwoFactorSetupModal({ isOpen, onClose, onComplete }: Two
         toast.error(data.error || 'Failed to setup 2FA');
       }
     } catch (error) {
+      if (!mountedRef.current) return;
       toast.error('Failed to connect to server');
     } finally {
-      setIsLoading(false);
+      if (mountedRef.current) setIsLoading(false);
     }
   };
 
@@ -59,7 +65,7 @@ export default function TwoFactorSetupModal({ isOpen, onClose, onComplete }: Two
 
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = safeGetItem('token');
       const response = await fetch('/api/two-factor/verify', {
         method: 'POST',
         headers: {
@@ -88,10 +94,13 @@ export default function TwoFactorSetupModal({ isOpen, onClose, onComplete }: Two
     }
   };
 
+  const copyTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(copyTimer.current), []);
   const handleCopySecret = () => {
     navigator.clipboard.writeText(secret);
     setCopiedSecret(true);
-    setTimeout(() => setCopiedSecret(false), 2000);
+    clearTimeout(copyTimer.current);
+    copyTimer.current = setTimeout(() => setCopiedSecret(false), 2000);
     toast.success('Secret copied to clipboard');
   };
 

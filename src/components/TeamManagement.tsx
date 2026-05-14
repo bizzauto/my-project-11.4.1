@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Users, UserPlus, Search, Shield,
   Edit3, Trash2, Crown, Ban, CheckCircle, RefreshCw
@@ -22,23 +22,29 @@ const TeamManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: string } | null>(null);
 
+  const mountedRef = useRef(true);
   const fetchTeam = useCallback(async () => {
     setLoading(true);
     try {
       const res = await teamAPI.listMembers();
+      if (!mountedRef.current) return;
       if (res.data.success) {
+        if (!mountedRef.current) return;
         setTeam(res.data.data?.members || []);
       }
     } catch (error) {
+      if (!mountedRef.current) return;
       console.error('Failed to fetch team:', error);
       showToast('Failed to load team members', 'error');
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     fetchTeam();
+    return () => { mountedRef.current = false; };
   }, [fetchTeam]);
 
   const filteredTeam = team.filter(
@@ -47,9 +53,12 @@ const TeamManagement: React.FC = () => {
       m.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
   const showToast = (message: string, type = 'success') => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
 
   const handleInvite = async () => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Phone, PhoneCall, PhoneOff, Mic, MicOff, Volume2,
   PhoneIncoming, PhoneOutgoing, Search, RefreshCw, Loader2
@@ -35,6 +35,7 @@ const VoiceCallPage: React.FC = () => {
   const [showDialer, setShowDialer] = useState(false);
   const [search, setSearch] = useState('');
 
+  const mountedRef = useRef(true);
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
@@ -42,6 +43,7 @@ const VoiceCallPage: React.FC = () => {
         analyticsAPI.messages({ limit: 50 }),
         contactsAPI.list({ limit: 50 }),
       ]);
+      if (!mountedRef.current) return;
 
       // Build call records from contacts/message data
       const callRecords: CallRecord[] = [];
@@ -68,6 +70,7 @@ const VoiceCallPage: React.FC = () => {
           });
         }
       }
+      if (!mountedRef.current) return;
 
       setCalls(callRecords);
 
@@ -76,16 +79,19 @@ const VoiceCallPage: React.FC = () => {
       const incomingCalls = callRecords.filter(c => c.type === 'incoming').length;
       const outgoingCalls = callRecords.filter(c => c.type === 'outgoing').length;
       const missedCalls = callRecords.filter(c => c.type === 'missed').length;
+      if (!mountedRef.current) return;
       setStats({ total: totalCalls, incoming: incomingCalls, outgoing: outgoingCalls, missed: missedCalls });
 
       // Build chart data from analytics if available
       if (analyticsRes.status === 'fulfilled') {
         const chartData = analyticsRes.value.data?.data?.chartData || analyticsRes.value.data?.data || [];
         if (Array.isArray(chartData) && chartData.length > 0) {
+          if (!mountedRef.current) return;
           setCallStats(chartData);
         } else {
           // Generate weekly chart from existing data
           const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+          if (!mountedRef.current) return;
           setCallStats(days.map(d => ({
             name: d,
             incoming: Math.floor(Math.random() * 15) + 2,
@@ -94,6 +100,7 @@ const VoiceCallPage: React.FC = () => {
         }
       } else {
         const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        if (!mountedRef.current) return;
         setCallStats(days.map(d => ({
           name: d,
           incoming: Math.floor(Math.random() * 15) + 2,
@@ -101,19 +108,25 @@ const VoiceCallPage: React.FC = () => {
         })));
       }
     } catch (err) {
+      if (!mountedRef.current) return;
       console.error('Failed to load voice call data:', err);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     loadData();
+    return () => { mountedRef.current = false; };
   }, [loadData]);
 
   const filteredCalls = calls.filter(c => filter === 'all' || c.type === filter).filter(c => !search || c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search));
 
-  const startCall = () => { setIsCallActive(true); setCallTimer(0); const i = setInterval(() => setCallTimer(t => t + 1), 1000); setTimeout(() => { clearInterval(i); setIsCallActive(false); }, 30000); };
+  const callTimerRef = useRef<ReturnType<typeof setInterval>>();
+  const callTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => { clearInterval(callTimerRef.current); clearTimeout(callTimeoutRef.current); }, []);
+  const startCall = () => { setIsCallActive(true); setCallTimer(0); callTimerRef.current = setInterval(() => setCallTimer(t => t + 1), 1000); callTimeoutRef.current = setTimeout(() => { clearInterval(callTimerRef.current); setIsCallActive(false); }, 30000); };
   const endCall = () => setIsCallActive(false);
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 

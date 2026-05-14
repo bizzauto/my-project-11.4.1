@@ -66,6 +66,8 @@ fly.toml
 .qodo/
 .qwen/
 .roo/
+.claude-flow/
+.claude/
 
 # Accidental nested repos
 MY\ PROJECT*/

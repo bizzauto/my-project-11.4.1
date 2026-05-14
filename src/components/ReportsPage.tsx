@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   TrendingUp, Users, MessageSquare, DollarSign, ArrowUpRight,
   Download, FileText, BarChart3, Clock, Eye, Zap, Target, RefreshCw
@@ -88,11 +88,13 @@ const ReportsPage: React.FC = () => {
     { name: 'Sun', leads: 10, messages: 35, revenue: 38000 },
   ];
 
+  const mountedRef = useRef(true);
   const fetchData = useCallback(async () => {
     setLoading(true);
 
     // If in demo mode, use mock data
     if (isDemoMode) {
+      if (!mountedRef.current) return;
       setOverviewData(demoOverviewData);
       setLeadScores(demoLeadScores);
       setTopLeads(demoTopLeads);
@@ -107,9 +109,11 @@ const ReportsPage: React.FC = () => {
         analyticsAPI.dashboard().catch(() => ({ data: { success: false } })),
         leadsAPI.list({ limit: 100 }).catch(() => ({ data: { success: false } }))
       ]);
+      if (!mountedRef.current) return;
 
       if (analyticsRes.data.success) {
         const data = analyticsRes.data.data;
+        if (!mountedRef.current) return;
         setOverviewData({
           contactsAdded: data.contactsAdded || 0,
           messagesSent: data.messagesSent || 0,
@@ -127,6 +131,7 @@ const ReportsPage: React.FC = () => {
 
       if (leadsRes.data.success) {
         const leads = leadsRes.data.data?.contacts || [];
+        if (!mountedRef.current) return;
         // Calculate lead scores based on engagement and tags
         const scored = leads.map((l: any) => {
           let score = 50;
@@ -148,6 +153,7 @@ const ReportsPage: React.FC = () => {
         });
 
         scored.sort((a: any, b: any) => b.score - a.score);
+        if (!mountedRef.current) return;
         setTopLeads(scored.slice(0, 10));
 
         const scoreDist = {
@@ -157,17 +163,21 @@ const ReportsPage: React.FC = () => {
           cold: scored.filter((l: any) => l.category === 'cold').length,
           averageScore: scored.length > 0 ? Math.round(scored.reduce((sum: number, l: any) => sum + l.score, 0) / scored.length) : 0,
         };
+        if (!mountedRef.current) return;
         setLeadScores(scoreDist);
       }
     } catch (error) {
+      if (!mountedRef.current) return;
       console.error('Failed to fetch reports data:', error);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     fetchData();
+    return () => { mountedRef.current = false; };
   }, [fetchData]);
 
   const formatCurrency = (val: number) => {

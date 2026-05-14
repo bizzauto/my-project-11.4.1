@@ -81,11 +81,13 @@ const features = [
   }
 ];
 
+import { safeGetItem, safeSetItem } from '../lib/storage';
+
 export default function FeaturesPage() {
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark' || 
-        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      return safeGetItem('theme') === 'dark' || 
+        (!safeGetItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
     }
     return false;
   });
@@ -94,10 +96,10 @@ export default function FeaturesPage() {
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      safeSetItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      safeSetItem('theme', 'light');
     }
   }, [isDark]);
 

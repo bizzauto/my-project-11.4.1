@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Key, Plus, Trash2, Copy, CheckCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 import { apiKeysAPI } from '../lib/api';
 import { PageSkeleton } from './Skeleton';
@@ -22,26 +22,34 @@ const ApiKeysPage: React.FC = () => {
   const [newKeyPermissions, setNewKeyPermissions] = useState<string[]>(['read']);
   const [newKey, setNewKey] = useState('');
   const [copied, setCopied] = useState(false);
+  const copyTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(copyTimer.current), []);
   const [creating, setCreating] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ApiKey | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const mountedRef = useRef(true);
   useEffect(() => {
+    mountedRef.current = true;
     loadKeys();
+    return () => { mountedRef.current = false; };
   }, []);
 
   const loadKeys = async () => {
     try {
+      if (!mountedRef.current) return;
       setLoading(true);
       const res = await apiKeysAPI.list();
+      if (!mountedRef.current) return;
       setKeys(res.data?.data || []);
     } catch {
+      if (!mountedRef.current) return;
       setKeys([
         { id: '1', name: 'Production Key', prefix: 'bk_prod_', created: '2024-03-15', lastUsed: '2 hours ago', permissions: ['read', 'write'], active: true },
         { id: '2', name: 'Test Key', prefix: 'bk_test_', created: '2024-04-01', lastUsed: '1 day ago', permissions: ['read'], active: true },
       ]);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   };
 
@@ -128,7 +136,7 @@ const generateKey = async () => {
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3 flex items-center justify-between mb-4">
                   <code className="text-sm text-gray-800 break-all">{newKey}</code>
-                  <button onClick={() => { navigator.clipboard.writeText(newKey); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="ml-2 p-1 hover:bg-gray-200 rounded">
+                  <button onClick={() => { navigator.clipboard.writeText(newKey); setCopied(true); clearTimeout(copyTimer.current); copyTimer.current = setTimeout(() => setCopied(false), 2000); }} className="ml-2 p-1 hover:bg-gray-200 rounded">
                     {copied ? <CheckCircle size={18} className="text-green-500" /> : <Copy size={18} />}
                   </button>
                 </div>

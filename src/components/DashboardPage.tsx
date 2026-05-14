@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   MessageSquare, Users, Calendar, Star, RefreshCw,
@@ -27,6 +27,7 @@ interface AnimatedNumberProps {
 const AnimatedNumber: React.FC<AnimatedNumberProps> = ({ value, duration = 1000 }) => {
   const [current, setCurrent] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval>>();
   
   useEffect(() => {
     if (!hasAnimated) {
@@ -34,10 +35,10 @@ const AnimatedNumber: React.FC<AnimatedNumberProps> = ({ value, duration = 1000 
       const animate = () => {
         let start = 0;
         const increment = value / (duration / 16);
-        const handle = setInterval(() => {
+        intervalRef.current = setInterval(() => {
           start += increment;
           if (start >= value) {
-            clearInterval(handle);
+            clearInterval(intervalRef.current);
             start = value;
           }
           setCurrent(Math.floor(start));
@@ -45,6 +46,7 @@ const AnimatedNumber: React.FC<AnimatedNumberProps> = ({ value, duration = 1000 
       };
       animate();
     }
+    return () => clearInterval(intervalRef.current);
   }, [value, hasAnimated, duration]);
 
   return <span className="text-2xl font-bold text-gray-900 dark:text-white">{current}</span>;

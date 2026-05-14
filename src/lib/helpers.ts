@@ -9,7 +9,7 @@ export interface ToastOptions {
 // Simple toast utility (fallback when toast context is not available)
 export const toast = {
   success: (message: string, options?: ToastOptions) => {
-    console.log(`[SUCCESS] ${message}`, options);
+    if (process.env.NODE_ENV !== 'production') console.log(`[SUCCESS] ${message}`, options);
     // In components with access to toast context, use the useToast hook instead
   },
   error: (message: string, options?: ToastOptions) => {

@@ -25,10 +25,12 @@ const NotificationCenter: React.FC<{ onNavigate?: (tab: string) => void; onClose
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
+		let mounted = true;
 		const fetchNotifications = async () => {
 			try {
 				setLoading(true);
 				const res = await notificationsAPI.list();
+				if (!mounted) return;
 				const backendNotifications = res.data?.data?.notifications || [];
 				const mapped = backendNotifications.map((n: any) => ({
 					id: n.id,
@@ -41,15 +43,18 @@ const NotificationCenter: React.FC<{ onNavigate?: (tab: string) => void; onClose
 					createdAt: n.createdAt ? new Date(n.createdAt).toLocaleDateString() : '',
 					link: n.link,
 				}));
+				if (!mounted) return;
 				setNotifications(mapped);
 			} catch (err) {
+				if (!mounted) return;
 				console.error('Failed to fetch notifications:', err);
 				setNotifications([]);
 			} finally {
-				setLoading(false);
+				if (mounted) setLoading(false);
 			}
 		};
 		fetchNotifications();
+		return () => { mounted = false; };
 	}, []);
 
 	const unreadCount = notifications.filter(n => !n.isRead).length;

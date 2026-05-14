@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Zap, Plus, Play, Pause, Trash2, Edit3, Clock,
   MessageSquare, Settings, Bot,
@@ -101,16 +101,21 @@ const AutomationPage: React.FC = () => {
     maxReplyLength: 200,
   };
 
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
   const showToast = (message: string, type = 'success') => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
 
+  const mountedRef = useRef(true);
   const loadData = useCallback(async () => {
     setLoading(true);
 
     // If in demo mode, use mock data
     if (isDemoMode) {
+      if (!mountedRef.current) return;
       setAutomations(demoAutomations);
       setSettings(demoSettings);
       setN8nStatus({ connected: false });
@@ -124,15 +129,18 @@ const AutomationPage: React.FC = () => {
         automationAPI.getSettings(),
         automationAPI.getN8nStatus(),
       ]);
+      if (!mountedRef.current) return;
 
       if (rulesRes.status === 'fulfilled') {
         const rules = rulesRes.value.data?.data || [];
+        if (!mountedRef.current) return;
         setAutomations(Array.isArray(rules) ? rules : []);
       }
 
       if (settingsRes.status === 'fulfilled') {
         const s = settingsRes.value.data?.data;
         if (s) {
+          if (!mountedRef.current) return;
           setSettings({
             autoReplyEnabled: s.autoReplyEnabled ?? defaultSettings.autoReplyEnabled,
             autoReplyMessage: s.autoReplyMessage ?? defaultSettings.autoReplyMessage,
@@ -146,19 +154,24 @@ const AutomationPage: React.FC = () => {
 
       if (n8nRes.status === 'fulfilled') {
         const n = n8nRes.value.data?.data;
+        if (!mountedRef.current) return;
         setN8nStatus(n ? { connected: n.connected ?? false, url: n.url } : { connected: false });
       } else {
+        if (!mountedRef.current) return;
         setN8nStatus({ connected: false });
       }
     } catch (err) {
+      if (!mountedRef.current) return;
       console.error('Failed to load automation data:', err);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     loadData();
+    return () => { mountedRef.current = false; };
   }, [loadData]);
 
   const toggleAutomation = async (id: string) => {

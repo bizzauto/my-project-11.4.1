@@ -496,7 +496,9 @@ const ChatView: React.FC<{
   const [templates, setTemplates] = useState<WATemplate[]>([]);
 
   useEffect(() => {
-    fetchTemplates().then(setTemplates);
+    let mounted = true;
+    fetchTemplates().then(t => { if (mounted) setTemplates(t); });
+    return () => { mounted = false; };
   }, []);
   const [showNewChat, setShowNewChat] = useState(false);
   const [newChatPhone, setNewChatPhone] = useState('');
@@ -524,6 +526,15 @@ const ChatView: React.FC<{
     setShowNewChat(false);
   }, []);
 
+  const simTimer1 = useRef<ReturnType<typeof setTimeout>>();
+  const simTimer2 = useRef<ReturnType<typeof setTimeout>>();
+  const connTimer1 = useRef<ReturnType<typeof setTimeout>>();
+  const connTimer2 = useRef<ReturnType<typeof setTimeout>>();
+  const tmplTimer1 = useRef<ReturnType<typeof setTimeout>>();
+  const tmplTimer2 = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => {
+    [simTimer1, simTimer2, connTimer1, connTimer2, tmplTimer1, tmplTimer2].forEach(t => clearTimeout(t.current));
+  }, []);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -561,11 +572,11 @@ const ChatView: React.FC<{
       }
     } else {
       // Simulate status updates (mock fallback)
-      setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'sent' } : m)), 500);
+      simTimer1.current = setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'sent' } : m)), 500);
     }
 
     if (!isConnected || !evolutionInstanceName) {
-      setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'delivered' } : m)), 1500);
+      simTimer2.current = setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'delivered' } : m)), 1500);
     }
 
     // Auto-reply only when connected via Evolution API
@@ -617,8 +628,8 @@ const ChatView: React.FC<{
     };
     setMessages(prev => [...prev, newMsg]);
     setShowTemplatePanel(false);
-    setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'sent' } : m)), 500);
-    setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'delivered' } : m)), 1500);
+    tmplTimer1.current = setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'sent' } : m)), 500);
+    tmplTimer2.current = setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'delivered' } : m)), 1500);
   };
 
   return (
@@ -1120,13 +1131,16 @@ const BroadcastView: React.FC = () => {
   const [broadcastTemplates, setBroadcastTemplates] = useState<WATemplate[]>([]);
 
   useEffect(() => {
+    let mounted = true;
     whatsappAPI.getContacts().then(res => {
+      if (!mounted) return;
       const data = res.data?.data || res.data?.contacts || [];
       setBroadcastContacts(Array.isArray(data) ? data.map((c: any) => ({
         id: c.id, name: c.name || c.phone, phone: c.phone, avatar: (c.name || c.phone || '?').substring(0, 2).toUpperCase(), lastMessage: c.lastMessage || '', lastMessageTime: c.lastMessageTime || '', unreadCount: c.unreadCount || 0, online: false, tags: c.tags || [], isGroup: false,
       })) : []);
     }).catch(() => { });
-    fetchTemplates().then(setBroadcastTemplates);
+    fetchTemplates().then(t => { if (mounted) setBroadcastTemplates(t); });
+    return () => { mounted = false; };
   }, []);
 
   const allTags = Array.from(new Set(broadcastContacts.flatMap((c: WAContact) => c.tags)));
@@ -1397,7 +1411,9 @@ const TemplateManagerView: React.FC = () => {
   const [templatesLoading, setTemplatesLoading] = useState(true);
 
   useEffect(() => {
-    fetchTemplates().then(t => { setTemplates(t); setTemplatesLoading(false); });
+    let mounted = true;
+    fetchTemplates().then(t => { if (mounted) { setTemplates(t); setTemplatesLoading(false); } });
+    return () => { mounted = false; };
   }, []);
   const [showCreate, setShowCreate] = useState(false);
   const [newTemplate, setNewTemplate] = useState({ name: '', category: 'MARKETING', language: 'en', content: '', footer: '' });
@@ -1558,7 +1574,9 @@ const WhatsAppSettingsView: React.FC = () => {
   const [autoRepliesLoading, setAutoRepliesLoading] = useState(true);
 
   useEffect(() => {
-    fetchAutoReplies().then(r => { setAutoReplies(r); setAutoRepliesLoading(false); });
+    let mounted = true;
+    fetchAutoReplies().then(r => { if (mounted) { setAutoReplies(r); setAutoRepliesLoading(false); } });
+    return () => { mounted = false; };
   }, []);
   const [newKeyword, setNewKeyword] = useState('');
   const [newResponse, setNewResponse] = useState('');
@@ -1833,20 +1851,23 @@ const ScheduledMessagesView: React.FC = () => {
     scheduledAt: '',
     templateName: '',
   });
+  const mountedRef = useRef(true);
 
   const fetchScheduled = async () => {
+    if (!mountedRef.current) return;
     setLoading(true);
     try {
       const res = await apiClient.get(`/whatsapp/scheduled${filter !== 'all' ? `?status=${filter}` : ''}`);
+      if (!mountedRef.current) return;
       if (res.data?.success) setMessages(res.data.data.messages || []);
     } catch {
-      // Fallback: show empty state
+      if (!mountedRef.current) return;
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   };
 
-  useEffect(() => { fetchScheduled(); }, [filter]);
+  useEffect(() => { mountedRef.current = true; fetchScheduled(); return () => { mountedRef.current = false; }; }, [filter]);
 
   const handleSchedule = async () => {
     if (!form.phone || !form.scheduledAt || (!form.content && !form.templateName)) return;
@@ -2101,6 +2122,7 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
 
   // Load chats when connected
   useEffect(() => {
+    let mounted = true;
     if (isEvolutionConnected && evolutionInstanceName) {
       const loadChats = async () => {
         try {
@@ -2108,6 +2130,7 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
             () => evolutionAPI.getChats(evolutionInstanceName),
             null as any
           );
+          if (!mounted) return;
           if (chatsData && Array.isArray(chatsData)) {
             // Map API chats to contacts
             const apiContacts: WAContact[] = chatsData.map((chat: any, idx: number) => ({
@@ -2132,6 +2155,7 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
       };
       loadChats();
     }
+    return () => { mounted = false; };
   }, [isEvolutionConnected, evolutionInstanceName]);
 
   const handleEvolutionConnect = async () => {
@@ -2186,8 +2210,8 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
     }
     // Meta QR mode (simulate)
     setConnectionStatus('scanning');
-    setTimeout(() => setConnectionStatus('connecting'), 2000);
-    setTimeout(() => {
+    connTimer1.current = setTimeout(() => setConnectionStatus('connecting'), 2000);
+    connTimer2.current = setTimeout(() => {
       setConnectionStatus('connected');
       setConnectedPhone('+91 8983027975');
       setCurrentView('chats');
@@ -2243,7 +2267,7 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   ];
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
+    <div className="h-full flex flex-col bg-gray-100">
       {/* Top Navigation Bar */}
       <div className="bg-white border-b border-gray-200 px-4 flex items-center justify-between h-14 flex-shrink-0">
         <div className="flex items-center gap-3">

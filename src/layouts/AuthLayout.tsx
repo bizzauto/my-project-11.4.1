@@ -119,7 +119,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+    <div className="h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* ===== DESKTOP SIDEBAR (hidden on mobile) ===== */}
       <div
         className={`hidden md:flex bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 min-h-screen fixed left-0 top-0 z-50 flex-col transition-all duration-300 ${

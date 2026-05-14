@@ -30,7 +30,7 @@ export const MobileApp = {
       // Hide splash screen after app is ready
       await SplashScreen.hide();
     } catch (err) {
-      console.log('Mobile init error:', err);
+      if (process.env.NODE_ENV !== 'production') console.log('Mobile init error:', err);
     }
   },
 
@@ -51,7 +51,7 @@ export const MobileApp = {
     try {
       await Share.share({ title, text, url });
     } catch (err) {
-      console.log('Share error:', err);
+      if (process.env.NODE_ENV !== 'production') console.log('Share error:', err);
     }
   },
 
@@ -67,7 +67,7 @@ export const MobileApp = {
       });
       return photo.dataUrl || null;
     } catch (err) {
-      console.log('Camera error:', err);
+      if (process.env.NODE_ENV !== 'production') console.log('Camera error:', err);
       return null;
     }
   },
@@ -84,7 +84,7 @@ export const MobileApp = {
       });
       return photo.dataUrl || null;
     } catch (err) {
-      console.log('Gallery error:', err);
+      if (process.env.NODE_ENV !== 'production') console.log('Gallery error:', err);
       return null;
     }
   },

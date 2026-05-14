@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MapPin, Star, Phone, Clock, Globe, Camera, Edit3, MessageSquare, Eye, Plus, CheckCircle, XCircle, AlertCircle, BarChart3, Share2, Search, ExternalLink, RefreshCw, Loader2 } from 'lucide-react';
 import { googleBusinessAPI } from '../lib/api';
 import { useAuthStore } from '../lib/authStore';
@@ -31,7 +31,9 @@ const GoogleBusinessPage: React.FC = () => {
   const [editForm, setEditForm] = useState({ name: business?.name || '', phone: business?.phone || '', website: business?.website || '', description: '' });
   const [toast, setToast] = useState<{ m: string; t: string } | null>(null);
 
-  const toast_ = (m: string, t = 'success') => { setToast({ m, t }); setTimeout(() => setToast(null), 3000); };
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
+  const toast_ = (m: string, t = 'success') => { setToast({ m, t }); clearTimeout(toastTimer.current); toastTimer.current = setTimeout(() => setToast(null), 3000); };
 
   const fetchData = useCallback(async () => {
     setLoading(true);

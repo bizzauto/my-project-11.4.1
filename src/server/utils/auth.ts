@@ -21,7 +21,7 @@ export const comparePassword = async (
 };
 
 export const generateToken = (payload: object): string => {
-  return jwt.sign(payload, JWT_SECRET!, {
+  return jwt.sign(payload, JWT_SECRET, {
     expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as jwt.SignOptions['expiresIn'],
   });
 };
@@ -31,7 +31,7 @@ export const verifyToken = (token: string): any => {
 };
 
 export const generateRefreshToken = (payload: object): string => {
-  return jwt.sign(payload, (process.env.JWT_REFRESH_SECRET || JWT_SECRET)!, {
+  return jwt.sign(payload, process.env.JWT_REFRESH_SECRET || JWT_SECRET, {
     expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || '30d') as jwt.SignOptions['expiresIn'],
   });
 };

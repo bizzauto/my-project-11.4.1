@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useToast } from '../components/Toast';
 import { subscriptionsAPI } from '../lib/api';
+import { safeGetItem, safeSetItem } from '../lib/storage';
 import { Check, Loader2, CreditCard } from 'lucide-react';
 
 interface PricingCardProps {
@@ -197,11 +198,14 @@ export default function PricingPage({ onNavigate }: PricingPageProps) {
     },
   ]);
 
+  const planTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(planTimer.current), []);
   const handleSelectPlan = async (planId: string, period: 'month' | 'year') => {
     if (planId === 'FREE') {
-      localStorage.setItem('planSelected', 'true');
+      safeSetItem('planSelected', 'true');
       if (onNavigate) {
-        setTimeout(() => onNavigate('dashboard'), 500);
+        clearTimeout(planTimer.current);
+        planTimer.current = setTimeout(() => onNavigate('dashboard'), 500);
       } else {
         window.location.href = '/dashboard';
       }
@@ -235,10 +239,11 @@ export default function PricingPage({ onNavigate }: PricingPageProps) {
             });
 
             if (verifyResponse.data.success) {
-              localStorage.setItem('planSelected', 'true');
+              safeSetItem('planSelected', 'true');
               toast.success('Payment successful! Subscription activated.');
               if (onNavigate) {
-                setTimeout(() => onNavigate('dashboard'), 1500);
+                clearTimeout(planTimer.current);
+                planTimer.current = setTimeout(() => onNavigate('dashboard'), 1500);
               }
             } else {
               toast.error('Payment verification failed');

@@ -63,10 +63,13 @@ const AIChatbotPage: React.FC = () => {
     }
   };
 
+  const copyTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(copyTimer.current), []);
   const copyMessage = (id: string, content: string) => {
     navigator.clipboard.writeText(content);
     setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
+    clearTimeout(copyTimer.current);
+    copyTimer.current = setTimeout(() => setCopiedId(null), 2000);
   };
 
   const clearChat = () => {

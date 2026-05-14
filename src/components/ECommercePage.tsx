@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Plus, Search, Package, ShoppingCart, TrendingUp, Eye, Edit, Trash2, Share2, X, MessageSquare, Upload, AlertTriangle, Tag, Percent, Trash, Minus, Plus as PlusIcon, Check, Clock, Truck, CreditCard } from 'lucide-react';
 import apiClient from '../lib/api';
 
@@ -109,26 +109,32 @@ const ECommercePage: React.FC = () => {
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [couponCodeInput, setCouponCodeInput] = useState('');
   const [loading, setLoading] = useState(true);
+  const mountedRef = useRef(true);
 
   const fetchData = useCallback(async () => {
     try {
+      if (!mountedRef.current) return;
       setLoading(true);
       const [productsRes, ordersRes] = await Promise.all([
         ecommerceAPI.listProducts(),
         ecommerceAPI.listOrders(),
       ]);
+      if (!mountedRef.current) return;
       setProducts(productsRes.data?.data?.products || productsRes.data?.data || []);
       setOrders(ordersRes.data?.data?.orders || ordersRes.data?.data || []);
     } catch {
+      if (!mountedRef.current) return;
       setProducts([]);
       setOrders([]);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     fetchData();
+    return () => { mountedRef.current = false; };
   }, [fetchData]);
 
   const filteredProducts = products.filter(p =>

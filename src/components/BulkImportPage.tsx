@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Upload, Download, FileSpreadsheet, CheckCircle, AlertCircle, X, Loader2, Users } from 'lucide-react';
 
 const BulkImportPage: React.FC = () => {
@@ -33,11 +33,15 @@ const BulkImportPage: React.FC = () => {
     reader.readAsText(f);
   }, []);
 
+  const importTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => importTimers.current.forEach(clearTimeout), []);
   const handleImport = useCallback(() => {
     setStep('processing');
     let success = 0, duplicates = 0, failed = 0;
+    importTimers.current.forEach(clearTimeout);
+    importTimers.current = [];
     contacts.forEach((_, i) => {
-      setTimeout(() => {
+      const t = setTimeout(() => {
         const r = Math.random();
         if (r < 0.85) success++;
         else if (r < 0.95) duplicates++;
@@ -47,6 +51,7 @@ const BulkImportPage: React.FC = () => {
           setStep('done');
         }
       }, i * 50);
+      importTimers.current.push(t);
     });
   }, [contacts]);
 

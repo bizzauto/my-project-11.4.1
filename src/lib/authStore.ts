@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { authAPI } from './api';
+import { safeGetItem, safeSetItem, safeRemoveItem } from './storage';
 
 interface User {
   id: string;
@@ -71,7 +72,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
 
     // Check for demo mode
-    const demoMode = localStorage.getItem('demoMode') === 'true';
+    const demoMode = safeGetItem('demoMode') === 'true';
     if (demoMode) {
       const demoUser: User = {
         id: 'demo-user-id',
@@ -113,7 +114,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       return;
     }
 
-    const token = localStorage.getItem('token');
+    const token = safeGetItem('token');
     if (!token) {
       set({ isInitialized: true, isAuthenticated: false, isLoading: false });
       return;
@@ -122,7 +123,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const res = await authAPI.getProfile();
       const { user, business } = res.data.data;
-      const onboardingCompleted = localStorage.getItem('onboardingCompleted') === 'true';
+      const onboardingCompleted = safeGetItem('onboardingCompleted') === 'true';
       set({
         token,
         user,
@@ -133,7 +134,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         onboardingCompleted,
       });
     } catch {
-      localStorage.removeItem('token');
+      safeRemoveItem('token');
       set({ token: null, user: null, business: null, isAuthenticated: false, isInitialized: true, isLoading: false });
     }
   },
@@ -143,7 +144,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const res = await authAPI.login({ email, password });
       const { user, business, token } = res.data.data;
-      localStorage.setItem('token', token);
+      safeSetItem('token', token);
       set({ user, business, token, isAuthenticated: true, isLoading: false });
     } catch (error: any) {
       set({ isLoading: false });
@@ -157,7 +158,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const res = await authAPI.register(data);
       const { user, business, token } = res.data.data;
-      localStorage.setItem('token', token);
+      safeSetItem('token', token);
       set({ user, business, token, isAuthenticated: true, isLoading: false, onboardingCompleted: true });
     } catch (error: any) {
       set({ isLoading: false });
@@ -170,16 +171,16 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('onboardingCompleted');
-    localStorage.removeItem('demoMode');
+    safeRemoveItem('token');
+    safeRemoveItem('onboardingCompleted');
+    safeRemoveItem('demoMode');
     set({ user: null, business: null, token: null, isAuthenticated: false, onboardingCompleted: false });
   },
 
   demoLogin: () => {
     // Enable demo mode
-    localStorage.setItem('demoMode', 'true');
-    localStorage.setItem('onboardingCompleted', 'true');
+    safeSetItem('demoMode', 'true');
+    safeSetItem('onboardingCompleted', 'true');
 
     const demoUser: User = {
       id: 'demo-user-id',
@@ -229,7 +230,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   setOnboardingCompleted: (val) => {
-    localStorage.setItem('onboardingCompleted', val ? 'true' : 'false');
+    safeSetItem('onboardingCompleted', val ? 'true' : 'false');
     set({ onboardingCompleted: val });
   },
 }));

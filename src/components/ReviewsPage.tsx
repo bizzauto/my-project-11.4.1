@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Star, MessageSquare, ThumbsUp, Filter, RefreshCw, ExternalLink, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuthStore } from '../lib/authStore';
 import { reviewsAPI } from '../lib/api';
@@ -30,10 +30,12 @@ export default function ReviewsPage() {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [toast, setToast] = useState<{ m: string; t: 'success' | 'error' } | null>(null);
 
+  const mountedRef = useRef(true);
   const fetchReviews = useCallback(async () => {
     setLoading(true);
     try {
       const res = await reviewsAPI.list();
+      if (!mountedRef.current) return;
       if (res.data.success) {
         const data = (res.data.data?.reviews || []).map((r: any) => ({
           id: r.id,
@@ -45,18 +47,22 @@ export default function ReviewsPage() {
           replied: !!r.replyText || !!r.repliedAt,
           reply: r.replyText || undefined,
         }));
+        if (!mountedRef.current) return;
         setReviews(data);
       }
     } catch (error) {
+      if (!mountedRef.current) return;
       console.error('Failed to fetch reviews:', error);
       showToast('Failed to load reviews', 'error');
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     fetchReviews();
+    return () => { mountedRef.current = false; };
   }, [fetchReviews]);
 
   const formatTimeAgo = (date: string) => {
@@ -70,9 +76,12 @@ export default function ReviewsPage() {
     return then.toLocaleDateString();
   };
 
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
   const showToast = (m: string, t: 'success' | 'error') => {
     setToast({ m, t });
-    setTimeout(() => setToast(null), 3000);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
 
   const filtered = reviews.filter(r => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Send, Clock, BarChart3, Users, Plus, Play, Pause, Eye, Trash2, Zap, MessageSquare } from 'lucide-react';
 
 interface EmailTemplate {
@@ -60,11 +60,14 @@ export default function EmailMarketingPage() {
     activeDrips: drips.filter(d => d.isActive).length,
   };
 
+  const campaignTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(campaignTimer.current), []);
   const sendCampaign = (id: string) => {
     setCampaigns(prev => prev.map(c => 
       c.id === id ? { ...c, status: 'sending' as any } : c
     ));
-    setTimeout(() => {
+    clearTimeout(campaignTimer.current);
+    campaignTimer.current = setTimeout(() => {
       setCampaigns(prev => prev.map(c => 
         c.id === id ? { ...c, status: 'sent', sent: c.recipients, delivered: Math.floor(c.recipients * 0.96), opened: Math.floor(c.recipients * 0.32), clicked: Math.floor(c.recipients * 0.08) } : c
       ));
@@ -132,7 +135,7 @@ export default function EmailMarketingPage() {
               <div className="flex items-center justify-between">
                 <div className="flex gap-4 text-sm text-gray-500">
                   <span>{campaign.recipients} recipients</span>
-                  {campaign.opened && <span>{campaign.opened} opened ({Math.round(campaign.opened / campaign.sent! * 100)}%)</span>}
+                  {campaign.opened && <span>{campaign.opened} opened ({Math.round(campaign.opened / (campaign.sent || 1) * 100)}%)</span>}
                   {campaign.clicked && <span>{campaign.clicked} clicked</span>}
                 </div>
                 <div className="flex gap-2">

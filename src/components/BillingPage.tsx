@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { CreditCard, Download, CheckCircle, ArrowUpRight, FileText, RefreshCw, Loader2, AlertCircle } from 'lucide-react';
 import { billingAPI, subscriptionsAPI, analyticsAPI } from '../lib/api';
 import { useAuthStore } from '../lib/authStore';
@@ -22,6 +22,7 @@ const BillingPage: React.FC = () => {
     status: subscription?.status || 'Active',
   };
 
+  const mountedRef = useRef(true);
   const loadBilling = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -31,17 +32,21 @@ const BillingPage: React.FC = () => {
         billingAPI.getInvoices(),
         analyticsAPI.dashboard(),
       ]);
+      if (!mountedRef.current) return;
 
       if (subRes.status === 'fulfilled' && subRes.value.data?.data) {
+        if (!mountedRef.current) return;
         setSubscription(subRes.value.data.data);
       }
 
       if (invRes.status === 'fulfilled' && invRes.value.data?.data) {
+        if (!mountedRef.current) return;
         const invData = invRes.value.data.data;
         setInvoices(Array.isArray(invData) ? invData : invData.invoices || []);
       }
 
       if (usageRes.status === 'fulfilled' && usageRes.value.data?.data) {
+        if (!mountedRef.current) return;
         const dashData = usageRes.value.data.data;
         const usageData = [
           { label: 'Contacts', used: dashData?.stats?.contactsUsed ?? dashData?.usage?.contacts ?? 0, limit: dashData?.stats?.contactsLimit ?? dashData?.limits?.contacts ?? 1000, pct: 0 },
@@ -49,8 +54,10 @@ const BillingPage: React.FC = () => {
           { label: 'AI Credits', used: dashData?.stats?.aiCreditsUsed ?? business?.aiCreditsUsed ?? 0, limit: dashData?.stats?.aiCreditsLimit ?? dashData?.limits?.aiCredits ?? 100, pct: 0 },
           { label: 'Users', used: dashData?.stats?.usersUsed ?? dashData?.usage?.users ?? 1, limit: dashData?.stats?.usersLimit ?? dashData?.limits?.users ?? 3, pct: 0 },
         ].map(u => ({ ...u, pct: u.limit > 0 ? Math.round((u.used / u.limit) * 100) : 0 }));
+        if (!mountedRef.current) return;
         setUsage(usageData);
       } else {
+        if (!mountedRef.current) return;
         // Fallback usage from business data
         setUsage([
           { label: 'Contacts', used: 0, limit: 1000, pct: 0 },
@@ -60,15 +67,18 @@ const BillingPage: React.FC = () => {
         ]);
       }
     } catch (err: any) {
+      if (!mountedRef.current) return;
       console.error('Failed to load billing data:', err);
       setError('Failed to load billing information. Please try again.');
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, [business]);
 
   useEffect(() => {
+    mountedRef.current = true;
     loadBilling();
+    return () => { mountedRef.current = false; };
   }, [loadBilling]);
 
   const handleCancelSubscription = async () => {

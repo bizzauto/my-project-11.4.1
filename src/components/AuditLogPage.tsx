@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Shield, Clock, Search, Download, RefreshCw } from 'lucide-react';
 import { auditLogAPI } from '../lib/api';
 import { PageSkeleton } from './Skeleton';
@@ -30,19 +30,25 @@ const AuditLogPage: React.FC = () => {
     { id: '8', user: 'Sneha Patel', action: 'user.login', resource: 'Logged in from Chrome on Windows', time: '3 days ago', ip: '103.21.55.78', severity: 'info' },
   ];
 
+  const mountedRef = useRef(true);
   useEffect(() => {
+    mountedRef.current = true;
     loadLogs();
+    return () => { mountedRef.current = false; };
   }, []);
 
   const loadLogs = async () => {
     try {
+      if (!mountedRef.current) return;
       setLoading(true);
       const res = await auditLogAPI.list({ severity: filter !== 'all' ? filter : undefined, search });
+      if (!mountedRef.current) return;
       setLogs(res.data?.data || []);
     } catch {
+      if (!mountedRef.current) return;
       setLogs(fallbackLogs);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   };
 

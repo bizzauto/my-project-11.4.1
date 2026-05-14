@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Calendar, Plus, Image, Zap, Send, Clock, MoreVertical,
   BarChart3, TrendingUp, Eye, Heart, MessageCircle, Share2,
@@ -162,11 +162,13 @@ const SocialMediaPage: React.FC = () => {
     { name: 'YouTube', value: 15, color: '#EF4444' },
   ];
 
+  const mountedRef = useRef(true);
   const fetchPosts = useCallback(async () => {
     setLoading(true);
 
     // If in demo mode, use mock data
     if (isDemoMode) {
+      if (!mountedRef.current) return;
       setPosts(demoPosts);
       setLoading(false);
       return;
@@ -174,6 +176,7 @@ const SocialMediaPage: React.FC = () => {
 
     try {
       const res = await postsAPI.list();
+      if (!mountedRef.current) return;
       if (res.data.success) {
         const data = (res.data.data?.posts || []).map((p: any) => ({
           id: p.id,
@@ -188,22 +191,29 @@ const SocialMediaPage: React.FC = () => {
           shares: p.shares || 0,
           reach: p.reach || 0,
         }));
+        if (!mountedRef.current) return;
         setPosts(data);
       }
     } catch (error) {
+      if (!mountedRef.current) return;
       console.error('Failed to fetch posts:', error);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, [isDemoMode]);
 
   useEffect(() => {
+    mountedRef.current = true;
     fetchPosts();
+    return () => { mountedRef.current = false; };
   }, [fetchPosts]);
 
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
   const showToast = (message: string, type = 'success') => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
 
   const filteredPosts = posts.filter(p => filterStatus === 'all' || p.status === filterStatus);

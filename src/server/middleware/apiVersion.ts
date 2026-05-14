@@ -22,15 +22,17 @@ const ACCESS_TOKEN_EXPIRY = '15m';  // 15 minutes
 const REFRESH_TOKEN_EXPIRY = '7d';  // 7 days
 
 export function generateTokenPair(payload: TokenPayload): TokenPair {
-  const accessToken = jwt.sign(payload, process.env.JWT_SECRET!, {
+  const jwtSecret = process.env.JWT_SECRET || 'dev-jwt-secret-do-not-use-in-production';
+  const accessToken = jwt.sign(payload, jwtSecret, {
     expiresIn: ACCESS_TOKEN_EXPIRY,
     issuer: 'bizzauto',
     subject: payload.userId,
   });
 
+  const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET || jwtSecret;
   const refreshToken = jwt.sign(
     { ...payload, type: 'refresh' },
-    process.env.JWT_REFRESH_SECRET!,
+    jwtRefreshSecret,
     { expiresIn: REFRESH_TOKEN_EXPIRY, issuer: 'bizzauto' }
   );
 
@@ -43,7 +45,7 @@ export function generateTokenPair(payload: TokenPayload): TokenPair {
 
 export function verifyAccessToken(token: string): TokenPayload | null {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET!, {
+    return jwt.verify(token, process.env.JWT_SECRET || 'dev-jwt-secret-do-not-use-in-production', {
       issuer: 'bizzauto',
     }) as TokenPayload;
   } catch (error) {
@@ -53,7 +55,7 @@ export function verifyAccessToken(token: string): TokenPayload | null {
 
 export function verifyRefreshToken(token: string): TokenPayload | null {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!, {
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'dev-jwt-secret-do-not-use-in-production', {
       issuer: 'bizzauto',
     }) as TokenPayload & { type: string };
     

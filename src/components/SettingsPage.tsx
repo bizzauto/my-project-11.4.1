@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../lib/authStore';
+import { safeGetItem } from '../lib/storage';
 import { useToast } from '../components/Toast';
 import { businessAPI } from '../lib/api';
 import TwoFactorSetupModal from './TwoFactorSetupModal';
@@ -33,24 +34,28 @@ export default function SettingsPage() {
 
   // Fetch 2FA status
   useEffect(() => {
+    let mounted = true;
     const fetch2FAStatus = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = safeGetItem('token');
         const response = await fetch('/api/two-factor/status', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
+        if (!mounted) return;
         if (data.success) {
           setTwoFactorStatus(data.data);
         }
       } catch (error) {
+        if (!mounted) return;
         console.error('Failed to fetch 2FA status:', error);
       } finally {
-        setLoading2FA(false);
+        if (mounted) setLoading2FA(false);
       }
     };
 
     fetch2FAStatus();
+    return () => { mounted = false; };
   }, []);
 
   const handle2FASetupComplete = () => {
@@ -61,7 +66,7 @@ export default function SettingsPage() {
   const handleDisable2FA = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = safeGetItem('token');
       const response = await fetch('/api/two-factor/disable', {
         method: 'DELETE',
         headers: {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   User, Mail, Phone, Shield, Key, Camera,
   CheckCircle, AlertCircle, Save, Clock, Building2, Loader2
@@ -26,9 +26,12 @@ const UserProfile: React.FC = () => {
     confirmPassword: '',
   });
 
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
   const showToast = (message: string, type = 'success') => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
 
   const handleSaveProfile = async () => {

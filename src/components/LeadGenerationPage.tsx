@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Users, Search, Download, MessageSquare, Mail, Phone, Plus, X, Eye, Send, Trash2, MapPin, Package, Truck, CheckCircle, AlertCircle, RefreshCw, ArrowUpRight, TrendingUp, UserPlus, Settings, Zap, MailOpen, Shield } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RT, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useAuthStore } from '../lib/authStore';
+import { safeGetItem } from '../lib/storage';
 
 const API = import.meta.env.VITE_API_URL || '/api';
 interface Lead { id:string; name:string; phone:string; email?:string; company?:string; source:string; tags:string[]; location?:string; product?:string; supplier?:string; requirement?:string; status:'new'|'contacted'|'qualified'|'won'|'lost'; dealValue?:number; createdAt:string; lastActivity?:string; metadata?:any; }
@@ -21,7 +22,7 @@ const Modal: React.FC<{open:boolean;onClose:()=>void;title:string;children:React
 
 export default function LeadGenerationPage(){
   const { business } = useAuthStore();
-  const bizId = business?.id || localStorage.getItem('businessId') || '';
+  const bizId = business?.id || safeGetItem('businessId') || '';
 
   const[leads,setLeads]=useState<Lead[]>([]);
   const[loading,setLoading]=useState(true);
@@ -45,18 +46,20 @@ export default function LeadGenerationPage(){
 
   const fetchLeads=useCallback(async()=>{
     setLoading(true);
-    try{const token=localStorage.getItem('token');const p=new URLSearchParams();if(fSrc!=='all')p.set('source',fSrc);if(fSt!=='all')p.set('tags',fSt);if(q)p.set('search',q);const r=await fetch(`${API}/leads?${p}`,{headers:{Authorization:`Bearer ${token}`}});const d=await r.json();if(d.success){const m=(d.data||[]).map((c:any)=>({id:c.id,name:c.name||'',phone:c.phone||'',email:c.email||'',company:c.company||'',source:c.source||'manual',tags:c.tags||[],location:c.metadata?.city||c.metadata?.location||'',product:c.metadata?.product||c.metadata?.service||'',supplier:c.metadata?.supplier||'',requirement:c.metadata?.requirement||c.metadata?.message||'',status:tagToStatus(c.tags||[]),dealValue:c.dealValue,createdAt:c.createdAt,lastActivity:c.lastActivity,metadata:c.metadata}));setLeads(m);calc(m);}}catch{setLeads([]);calc([]);}
+    try{const token=safeGetItem('token');const p=new URLSearchParams();if(fSrc!=='all')p.set('source',fSrc);if(fSt!=='all')p.set('tags',fSt);if(q)p.set('search',q);const r=await fetch(`${API}/leads?${p}`,{headers:{Authorization:`Bearer ${token}`}});const d=await r.json();if(d.success){const m=(d.data||[]).map((c:any)=>({id:c.id,name:c.name||'',phone:c.phone||'',email:c.email||'',company:c.company||'',source:c.source||'manual',tags:c.tags||[],location:c.metadata?.city||c.metadata?.location||'',product:c.metadata?.product||c.metadata?.service||'',supplier:c.metadata?.supplier||'',requirement:c.metadata?.requirement||c.metadata?.message||'',status:tagToStatus(c.tags||[]),dealValue:c.dealValue,createdAt:c.createdAt,lastActivity:c.lastActivity,metadata:c.metadata}));setLeads(m);calc(m);}}catch{setLeads([]);calc([]);}
     setLoading(false);
   },[fSrc,fSt,q]);
 
   useEffect(()=>{fetchLeads();},[fetchLeads]);
-  const toast_=(m:string,t:'success'|'error')=>{setToast({m,t});setTimeout(()=>setToast(null),3000);};
+  const toastTimer=useRef<ReturnType<typeof setTimeout>>();
+  useEffect(()=>()=>clearTimeout(toastTimer.current),[]);
+  const toast_=(m:string,t:'success'|'error')=>{setToast({m,t});clearTimeout(toastTimer.current);toastTimer.current=setTimeout(()=>setToast(null),3000);};
  useEffect(()=>{fetchImConfig();},[]);
 
  // IndiaMART Email Config functions
- const fetchImConfig = useCallback(async () => {
-   try {
-     const token = localStorage.getItem('token');
+  const fetchImConfig = useCallback(async () => {
+    try {
+      const token = safeGetItem('token');
       const r = await fetch(`${API}/indiamart-email/config`, { headers: { Authorization: `Bearer ${token}` } });
      const d = await r.json();
      if (d.success) { setImConfig(d.data); if (d.data?.spreadsheetId) setImForm(prev => ({ ...prev, spreadsheetId: d.data.spreadsheetId })); }
@@ -66,7 +69,7 @@ export default function LeadGenerationPage(){
  const syncIndiaMART = async () => {
    setImSyncing(true); setSyncResult(null);
    try {
-     const token = localStorage.getItem('token');
+     const token = safeGetItem('token');
      const r = await fetch(`${API}/indiamart-email/sync`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
      const d = await r.json();
      if (d.success) { setSyncResult(d.data); toast_('Sync complete!', 'success'); fetchLeads(); } else { toast_(d.error || 'Sync failed', 'error'); }
@@ -77,7 +80,7 @@ export default function LeadGenerationPage(){
  const testImConnection = async () => {
    setImTesting(true);
    try {
-     const token = localStorage.getItem('token');
+     const token = safeGetItem('token');
      const r = await fetch(`${API}/indiamart-email/connect`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(imForm) });
      const d = await r.json();
      if (d.success) toast_('Connection successful!', 'success'); else toast_(d.error || 'Connection failed', 'error');
@@ -89,7 +92,7 @@ export default function LeadGenerationPage(){
    if (!imForm.email || !imForm.password) { toast_('Email and password are required', 'error'); return; }
    setImTesting(true);
    try {
-     const token = localStorage.getItem('token');
+     const token = safeGetItem('token');
      const r = await fetch(`${API}/indiamart-email/setup`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(imForm) });
      const d = await r.json();
      if (d.success) { toast_('IndiaMART email connected!', 'success'); setShowImSettings(false); fetchImConfig(); } else { toast_(d.error || 'Failed to save', 'error'); }
@@ -99,21 +102,21 @@ export default function LeadGenerationPage(){
 
   const handleSubmit=async(e:React.FormEvent)=>{
     e.preventDefault();
-    try{const token=localStorage.getItem('token');const r=await fetch(`${API}/leads/manual`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({businessId:bizId,source:form.source,leadData:{name:form.name,phone:form.phone,email:form.email||undefined,company:form.company||undefined,product:form.product||undefined,requirement:form.requirement||undefined,city:form.location||undefined,supplier:form.supplier||undefined}})});const d=await r.json();if(d.success){toast_('Lead added!','success');setShowForm(false);setForm(EF);fetchLeads();}else toast_(d.error||'Failed','error');}
+    try{const token=safeGetItem('token');const r=await fetch(`${API}/leads/manual`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({businessId:bizId,source:form.source,leadData:{name:form.name,phone:form.phone,email:form.email||undefined,company:form.company||undefined,product:form.product||undefined,requirement:form.requirement||undefined,city:form.location||undefined,supplier:form.supplier||undefined}})});const d=await r.json();if(d.success){toast_('Lead added!','success');setShowForm(false);setForm(EF);fetchLeads();}else toast_(d.error||'Failed','error');}
     catch{toast_('Failed to add lead. Please try again.','error');}
   };
 
   const csvExport=()=>{const x=sel.size>0?leads.filter(l=>sel.has(l.id)):leads;const h=['Name','Phone','Email','Company','Location','Product','Supplier','Requirement','Source','Status','Deal Value','Created At'];const rows=x.map(l=>[l.name,l.phone,l.email||'',l.company||'',l.location||'',l.product||'',l.supplier||'',l.requirement||'',l.source,l.status,l.dealValue?.toString()||'',new Date(l.createdAt).toLocaleString()]);const csv=[h,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');const b=new Blob([csv],{type:'text/csv'}),u=window.URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=`leads_${new Date().toISOString().slice(0,10)}.csv`;a.click();window.URL.revokeObjectURL(u);toast_('Exported CSV!','success');};
 
   const handleExport=async(fmt:'csv'|'excel'|'sheets')=>{
-    try{const token=localStorage.getItem('token'),ids=sel.size>0?Array.from(sel):undefined;if(fmt==='sheets'){const r=await fetch(`${API}/leads/export/sheets`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({businessId:bizId,leadIds:ids})});const d=await r.json();if(d.success&&d.url){window.open(d.url,'_blank');toast_('Synced to Sheets!','success');}else toast_('Sheets not configured','error');}else{const r=await fetch(`${API}/leads/export/${fmt}`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({leadIds:ids})});if(r.ok){const b=await r.blob(),u=window.URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=`leads_${new Date().toISOString().slice(0,10)}.${fmt==='excel'?'xlsx':'csv'}`;a.click();window.URL.revokeObjectURL(u);toast_(`Exported ${fmt.toUpperCase()}!`,'success');}else csvExport();}}
+    try{const token=safeGetItem('token'),ids=sel.size>0?Array.from(sel):undefined;if(fmt==='sheets'){const r=await fetch(`${API}/leads/export/sheets`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({businessId:bizId,leadIds:ids})});const d=await r.json();if(d.success&&d.url){window.open(d.url,'_blank');toast_('Synced to Sheets!','success');}else toast_('Sheets not configured','error');}else{const r=await fetch(`${API}/leads/export/${fmt}`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({leadIds:ids})});if(r.ok){const b=await r.blob(),u=window.URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=`leads_${new Date().toISOString().slice(0,10)}.${fmt==='excel'?'xlsx':'csv'}`;a.click();window.URL.revokeObjectURL(u);toast_(`Exported ${fmt.toUpperCase()}!`,'success');}else csvExport();}}
     catch{csvExport();}
     setShowExport(false);
   };
 
   const handleBulkReply=async()=>{
     const tg=sel.size>0?leads.filter(l=>sel.has(l.id)):leads;
-    try{const token=localStorage.getItem('token');const r=await fetch(`${API}/leads/bulk-reply`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({businessId:bizId,leadIds:tg.map(l=>l.id),channel:rType,message:rMsg})});const d=await r.json();if(d.success)toast_(`Reply sent via ${rType} to ${tg.length} leads!`,'success');else toast_(d.error||'Failed','error');}
+    try{const token=safeGetItem('token');const r=await fetch(`${API}/leads/bulk-reply`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({businessId:bizId,leadIds:tg.map(l=>l.id),channel:rType,message:rMsg})});const d=await r.json();if(d.success)toast_(`Reply sent via ${rType} to ${tg.length} leads!`,'success');else toast_(d.error||'Failed','error');}
     catch{toast_(`${rType} queued for ${tg.length} leads (demo)`,'success');}
     setShowReply(false);setRMsg('');
   };
@@ -126,7 +129,7 @@ export default function LeadGenerationPage(){
     toast_(`Opening ${ch}...`,'success');
   };
 
-  const del=async(id:string)=>{if(!confirm('Delete this lead?'))return;try{const t=localStorage.getItem('token');await fetch(`${API}/leads/${id}`,{method:'DELETE',headers:{Authorization:`Bearer ${t}`}});}catch{}const u=leads.filter(l=>l.id!==id);setLeads(u);calc(u);setSel(p=>{const n=new Set(p);n.delete(id);return n;});toast_('Deleted','success');};
+  const del=async(id:string)=>{if(!confirm('Delete this lead?'))return;try{const t=safeGetItem('token');await fetch(`${API}/leads/${id}`,{method:'DELETE',headers:{Authorization:`Bearer ${t}`}});}catch{}const u=leads.filter(l=>l.id!==id);setLeads(u);calc(u);setSel(p=>{const n=new Set(p);n.delete(id);return n;});toast_('Deleted','success');};
   const tog=(id:string)=>setSel(p=>{const n=new Set(p);if(n.has(id))n.delete(id);else n.add(id);return n;});
   const togAll=()=>{if(sel.size===fl.length)setSel(new Set());else setSel(new Set(fl.map(l=>l.id)));};
 

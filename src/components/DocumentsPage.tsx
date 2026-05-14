@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Plus, Search, FileText, Download, Send, Eye, Edit, Trash2, X, Copy, Check, DollarSign, Clock, TrendingUp, RefreshCw, Loader2 } from 'lucide-react';
 import { documentsAPI } from '../lib/api';
 
@@ -58,22 +58,28 @@ const DocumentsPage: React.FC = () => {
     items: [{ description: '', qty: 1, rate: 0, amount: 0 }],
   });
 
+  const mountedRef = useRef(true);
   const loadDocuments = useCallback(async () => {
     setLoading(true);
     try {
       const res = await documentsAPI.list({ limit: 100 });
+      if (!mountedRef.current) return;
       const docs = res.data?.data?.documents || res.data?.data || [];
+      if (!mountedRef.current) return;
       setDocuments(Array.isArray(docs) ? docs : []);
     } catch (err) {
+      if (!mountedRef.current) return;
       console.error('Failed to load documents:', err);
       setDocuments([]);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     loadDocuments();
+    return () => { mountedRef.current = false; };
   }, [loadDocuments]);
 
   const filtered = documents

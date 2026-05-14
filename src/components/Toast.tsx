@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { CheckCircle, AlertCircle, X, Info } from 'lucide-react';
 
 type ToastType = 'success' | 'error' | 'info' | 'warning';
@@ -28,14 +28,18 @@ export const useToast = () => {
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const toastTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  useEffect(() => () => Object.values(toastTimers.current).forEach(clearTimeout), []);
 
   const toast = useCallback((message: string, type: ToastType = 'info') => {
     const id = Math.random().toString(36).substr(2, 9);
     setToasts((prev) => [...prev, { id, message, type }]);
     
     // Auto remove after 4 seconds
-    setTimeout(() => {
+    toastTimers.current[id] = setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
+      delete toastTimers.current[id];
     }, 4000);
   }, []);
 
