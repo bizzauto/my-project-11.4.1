@@ -174,6 +174,66 @@ export const requireBusinessAccess = async (
   }
 };
 
+// Plan-based API rate limits (requests per minute)
+const PLAN_RATE_LIMITS: Record<string, number> = {
+  FREE: 30,
+  BASIC: 60,
+  PROFESSIONAL: 120,
+  ENTERPRISE: 300,
+  AGENCY: 9999,
+};
+
+// In-memory rate limit tracking per business
+const planRateCounters: Map<string, { count: number; resetAt: number }> = new Map();
+
+// Cleanup old counters every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, val] of planRateCounters) {
+    if (val.resetAt < now) planRateCounters.delete(key);
+  }
+}, 5 * 60 * 1000);
+
+// Plan-based rate limiter middleware
+export const planRateLimiter = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  if (!req.user) return next();
+
+  const businessId = req.user.businessId || 'super-admin';
+  const now = Date.now();
+  const counter = planRateCounters.get(businessId);
+
+  // Reset counter if window expired
+  if (!counter || counter.resetAt < now) {
+    planRateCounters.set(businessId, { count: 1, resetAt: now + 60000 });
+    return next();
+  }
+
+  // Get user's plan (default to FREE)
+  let plan = 'FREE';
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { business: { select: { plan: true } } },
+    });
+    plan = user?.business?.plan || 'FREE';
+  } catch {}
+
+  const limit = PLAN_RATE_LIMITS[plan] || 30;
+
+  if (counter.count >= limit) {
+    return res.status(429).json({
+      success: false,
+      error: `API rate limit exceeded for ${plan} plan. Upgrade for higher limits.`,
+      limit,
+      windowMs: 60000,
+    });
+  }
+
+  counter.count++;
+  planRateCounters.set(businessId, counter);
+  next();
+};
+
 export const checkPlanLimits = (resource: string, limit: number) => {
   return async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {

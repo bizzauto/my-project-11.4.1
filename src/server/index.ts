@@ -12,6 +12,7 @@ import { PrismaClient } from '@prisma/client';
 import winston from 'winston';
 import path from 'path';
 import rateLimit from 'express-rate-limit';
+
 import authRoutes from './routes/auth.js';
 import aiRoutes from './routes/ai.js';
 import analyticsRoutes from './routes/analytics.js';
@@ -214,6 +215,27 @@ app.use('/api/team', teamRoutes);
 app.use('/api/two-factor', twoFactorRoutes);
 app.use('/api/webhooks', webhooksRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
+
+// Plan-based rate limiter (applies to ALL authenticated API calls)
+// FREE=30, BASIC=60, PROFESSIONAL=120, ENTERPRISE=300 req/min
+const PLAN_LIMITS: Record<string, number> = { FREE: 30, BASIC: 60, PROFESSIONAL: 120, ENTERPRISE: 300, AGENCY: 9999 };
+const planCounters: Map<string, { count: number; resetAt: number }> = new Map();
+setInterval(() => { const n = Date.now(); for (const [k, v] of planCounters) if (v.resetAt < n) planCounters.delete(k); }, 300000);
+app.use('/api', async (req: any, res: any, next: any) => {
+  if (!req.user) return next();
+  const bid = req.user.businessId || 'admin';
+  const now = Date.now();
+  const c = planCounters.get(bid);
+  if (!c || c.resetAt < now) { planCounters.set(bid, { count: 1, resetAt: now + 60000 }); return next(); }
+  let plan = 'FREE';
+  try {
+    const u = await prisma.user.findUnique({ where: { id: req.user.id }, select: { business: { select: { plan: true } } } });
+    plan = u?.business?.plan || 'FREE';
+  } catch {}
+  const limit = PLAN_LIMITS[plan] || 30;
+  if (c.count >= limit) return res.status(429).json({ success: false, error: `Rate limit exceeded (${plan} plan: ${limit}/min). Upgrade for higher limits.` });
+  c.count++; planCounters.set(bid, c); next();
+});
 
 // Test GET endpoint
 app.get('/test-get', (req, res) => {
