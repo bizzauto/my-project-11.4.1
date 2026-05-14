@@ -66,3 +66,6 @@ fly.toml
 .qodo/
 .qwen/
 .roo/
+
+# Accidental nested repos
+MY\ PROJECT*/
