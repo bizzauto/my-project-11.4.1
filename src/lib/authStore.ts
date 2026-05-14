@@ -145,7 +145,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       const res = await authAPI.login({ email, password });
       const { user, business, token } = res.data.data;
       safeSetItem('token', token);
-      safeSetItem('planSelected', 'true');
       set({ user, business, token, isAuthenticated: true, isLoading: false });
     } catch (error: any) {
       set({ isLoading: false });
@@ -160,7 +159,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       const res = await authAPI.register(data);
       const { user, business, token } = res.data.data;
       safeSetItem('token', token);
-      safeSetItem('planSelected', 'true');
       set({ user, business, token, isAuthenticated: true, isLoading: false, onboardingCompleted: true });
     } catch (error: any) {
       set({ isLoading: false });
