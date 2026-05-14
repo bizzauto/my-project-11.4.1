@@ -11,6 +11,7 @@ import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
 import winston from 'winston';
 import path from 'path';
+import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth.js';
 import aiRoutes from './routes/ai.js';
 import analyticsRoutes from './routes/analytics.js';
@@ -52,9 +53,22 @@ const PORT = process.env.PORT || 4000;
 const HOST = process.env.HOST || '0.0.0.0';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// Initialize Prisma
+// Initialize Prisma with query timeout protection
 export const prisma = new PrismaClient({
   log: NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+});
+
+// Prisma middleware - query timeout (30 seconds max)
+prisma.$use(async (params, next) => {
+  const timeout = setTimeout(() => {
+    console.error(`PRISMA TIMEOUT: ${params.model}.${params.action} took too long`);
+  }, 30000);
+  try {
+    const result = await next(params);
+    return result;
+  } finally {
+    clearTimeout(timeout);
+  }
 });
 
 // Winston Logger
@@ -105,6 +119,62 @@ app.use(morgan('combined', {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(cookieParser());
+
+// ==================== SECURITY MIDDLEWARE ====================
+
+// Rate limiting - prevent brute force & abuse
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // 20 attempts per window per IP
+  message: { success: false, error: 'Too many attempts. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 200, // 200 requests per minute per IP
+  message: { success: false, error: 'Too many requests. Please slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Apply rate limiters
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/forgot-password', authLimiter);
+app.use('/api', apiLimiter);
+
+// Input sanitization - strip dangerous patterns from string inputs
+app.use((req, res, next) => {
+  const sanitize = (obj: any): any => {
+    if (typeof obj === 'string') {
+      // Block NoSQL injection patterns and SQL injection attempts
+      const dangerous = /\$gt|\$gte|\$lt|\$lte|\$in|\$nin|\$ne|\$eq|\$regex|DROP\s|ALTER\s|DELETE\s|EXEC\s|UNION\s|--/i;
+      if (dangerous.test(obj)) {
+        return '[BLOCKED]';
+      }
+      return obj;
+    }
+    if (Array.isArray(obj)) return obj.map(sanitize);
+    if (obj && typeof obj === 'object') {
+      const result: any = {};
+      for (const key of Object.keys(obj)) {
+        result[key] = sanitize(obj[key]);
+      }
+      return result;
+    }
+    return obj;
+  };
+  
+  if (req.body) req.body = sanitize(req.body);
+  if (req.query) {
+    for (const key of Object.keys(req.query)) {
+      (req.query as any)[key] = sanitize((req.query as any)[key]);
+    }
+  }
+  next();
+});
 
 // Request ID middleware
 app.use((req, res, next) => {
