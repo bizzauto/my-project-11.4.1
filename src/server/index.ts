@@ -81,12 +81,13 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://checkout.razorpay.com", "https://fonts.googleapis.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://checkout.razorpay.com", "https://fonts.googleapis.com", "https://cdn.razorpay.com"],
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
       connectSrc: ["'self'", "https:", "wss:"],
-      frameSrc: ["'self'", "https://checkout.razorpay.com"],
+      frameSrc: ["'self'", "https://checkout.razorpay.com", "https://api.razorpay.com"],
       workerSrc: ["'self'", "blob:"],
       manifestSrc: ["'self'"],
     },
