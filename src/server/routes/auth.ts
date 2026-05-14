@@ -163,9 +163,10 @@ router.post('/login', async (req: any, res: any) => {
     });
 
     // Update last login and clear CSRF token
+    const clientIp = req.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() || req.ip || '';
     await prisma.user.update({
       where: { id: user.id },
-      data: { lastLoginAt: new Date() },
+      data: { lastLoginAt: new Date(), lastLoginIp: clientIp },
     });
 
     res.json({

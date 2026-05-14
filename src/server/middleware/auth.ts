@@ -44,9 +44,22 @@ export const authenticate = async (
       });
     }
 
+    // FREE plan IP restriction: only allow from one device
+    const clientIp = req.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() || req.ip || '';
+    const updateData: any = { lastLoginAt: new Date(), lastLoginIp: clientIp };
+    
+    if (user.role !== 'SUPER_ADMIN' && user.business?.plan === 'FREE') {
+      if (user.lastLoginIp && user.lastLoginIp !== clientIp) {
+        return res.status(403).json({
+          success: false,
+          error: 'Free plan allows access from only one device. Upgrade your plan to use on multiple devices.',
+        });
+      }
+    }
+
     await prisma.user.update({
       where: { id: user.id },
-      data: { lastLoginAt: new Date() },
+      data: updateData,
     });
 
     // Generate CSRF token for the session

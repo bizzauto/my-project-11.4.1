@@ -24,6 +24,7 @@ model User {
   isActive      Boolean   @default(true)
   isVerified    Boolean   @default(false) // <--- हा नवीन कॉलम जोडला आहे
   lastLoginAt   DateTime?
+  lastLoginIp   String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
