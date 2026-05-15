@@ -1,6 +1,11 @@
+import https from 'https';
 import axios from 'axios';
 import { prisma } from '../index.js';
 import { encrypt, decrypt } from '../utils/auth.js';
+
+const evoApi = axios.create({
+  httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+});
 
 /**
  * Evolution API Service
@@ -48,7 +53,7 @@ export class EvolutionApiService {
     const instanceName = options.instanceName || `biz_${businessId.slice(-8)}`;
 
     try {
-      const response = await axios.post(
+      const response = await evoApi.post(
         `${options.baseUrl}/instance/create`,
         {
           instanceName,
@@ -131,14 +136,14 @@ export class EvolutionApiService {
 
     try {
       // Connect the instance
-      await axios.post(
+      await evoApi.post(
         `${config.baseUrl}/instance/connect/${config.instanceName}`,
         {},
         { headers: { apikey: config.apiKey } }
       );
 
       // Fetch QR code
-      const qrResponse = await axios.get(
+      const qrResponse = await evoApi.get(
         `${config.baseUrl}/instance/qrcode/${config.instanceName}`,
         { headers: { apikey: config.apiKey } }
       );
@@ -170,7 +175,7 @@ export class EvolutionApiService {
     try {
       const config = await this.getConfig(businessId);
 
-      const response = await axios.get(
+      const response = await evoApi.get(
         `${config.baseUrl}/instance/fetchInstances?instanceName=${config.instanceName}`,
         { headers: { apikey: config.apiKey } }
       );
@@ -183,7 +188,7 @@ export class EvolutionApiService {
         let profileName = '';
         let profilePicUrl = '';
         try {
-          const profileRes = await axios.post(
+          const profileRes = await evoApi.post(
             `${config.baseUrl}/chat/fetchProfilePictureUrl/${config.instanceName}`,
             { number: instance?.instance?.phone || '' },
             { headers: { apikey: config.apiKey } }
@@ -217,7 +222,7 @@ export class EvolutionApiService {
     const config = await this.getConfig(businessId);
 
     try {
-      await axios.delete(
+      await evoApi.delete(
         `${config.baseUrl}/instance/logout/${config.instanceName}`,
         { headers: { apikey: config.apiKey } }
       );
@@ -236,7 +241,7 @@ export class EvolutionApiService {
     const config = await this.getConfig(businessId);
 
     try {
-      await axios.delete(
+      await evoApi.delete(
         `${config.baseUrl}/instance/delete/${config.instanceName}`,
         { headers: { apikey: config.apiKey } }
       );
@@ -269,7 +274,7 @@ export class EvolutionApiService {
     const formattedNumber = this.formatPhone(to);
 
     try {
-      const response = await axios.post(
+      const response = await evoApi.post(
         `${config.baseUrl}/message/sendText/${config.instanceName}`,
         {
           number: formattedNumber,
@@ -348,7 +353,7 @@ export class EvolutionApiService {
         payload.caption = caption;
       }
 
-      const response = await axios.post(
+      const response = await evoApi.post(
         `${config.baseUrl}/message/${endpointMap[mediaType]}/${config.instanceName}`,
         payload,
         { headers: { apikey: config.apiKey } }
@@ -395,7 +400,7 @@ export class EvolutionApiService {
     const formattedNumber = this.formatPhone(to);
 
     try {
-      const response = await axios.post(
+      const response = await evoApi.post(
         `${config.baseUrl}/message/sendButtons/${config.instanceName}`,
         {
           number: formattedNumber,
@@ -504,7 +509,7 @@ export class EvolutionApiService {
     const config = await this.getConfig(businessId);
 
     try {
-      const response = await axios.post(
+      const response = await evoApi.post(
         `${config.baseUrl}/chat/fetchChats/${config.instanceName}`,
         {},
         { headers: { apikey: config.apiKey } }
@@ -528,7 +533,7 @@ export class EvolutionApiService {
     const config = await this.getConfig(businessId);
 
     try {
-      const response = await axios.post(
+      const response = await evoApi.post(
         `${config.baseUrl}/chat/fetchMessages/${config.instanceName}`,
         {
           where: { key: { remoteJid } },
@@ -554,7 +559,7 @@ export class EvolutionApiService {
     const config = await this.getConfig(businessId);
 
     try {
-      const response = await axios.post(
+      const response = await evoApi.post(
         `${config.baseUrl}/chat/whatsappNumbers/${config.instanceName}`,
         { numbers: [number.replace(/\D/g, '')] },
         { headers: { apikey: config.apiKey } }
