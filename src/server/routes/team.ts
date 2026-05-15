@@ -607,7 +607,6 @@ router.get('/api-keys', async (req: any, res: any) => {
       select: {
         id: true,
         name: true,
-        prefix: true,
         permissions: true,
         lastUsedAt: true,
         expiresAt: true,

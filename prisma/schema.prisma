@@ -1104,6 +1104,7 @@ model PosterTemplate {
   content     String // HTML/JSON template
   variables   Json[] // [{ name: "title", type: "text" }]
   isSystem    Boolean @default(false)
+  usageCount  Int     @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
