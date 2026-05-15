@@ -2098,6 +2098,9 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const [connectionMode, setConnectionMode] = useState<ConnectionMode>('meta');
   const [evolutionQR, setEvolutionQR] = useState('');
   const [apiError, setApiError] = useState<string | null>(null);
+  const connTimer1 = useRef<ReturnType<typeof setTimeout>>();
+  const connTimer2 = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => { clearTimeout(connTimer1.current); clearTimeout(connTimer2.current); }, []);
 
   // Fetch Evolution config on mount
   useEffect(() => {

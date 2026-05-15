@@ -4,11 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Zap, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useAuthStore } from '../lib/authStore';
 import { useTranslation } from 'react-i18next';
-import apiClient from '../lib/api';
 import { authAPI } from '../lib/api';
-
-(window as any).apiClient = apiClient;
-(window as any).authAPI = authAPI;
 
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();
@@ -21,7 +17,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuthStore();
+  const { user, business, login } = useAuthStore();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +51,10 @@ const LoginPage: React.FC = () => {
       });
       const data = await res.json();
       if (data.success) {
-        await completeLogin(data.data);
+        const ud = data.data;
+        if (ud.token) safeSetItem('token', ud.token);
+        useAuthStore.setState({ user: ud.user, business: ud.business, token: ud.token, isAuthenticated: true });
+        navigate('/dashboard', { replace: true });
       } else {
         setError(data.error || 'Invalid code');
       }
@@ -63,20 +62,6 @@ const LoginPage: React.FC = () => {
       setError('Verification failed');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const testApi = async () => {
-    try {
-      const r = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({email:'test@api.com',password:'Test1234',name:'T',businessName:'B',businessType:'general'})
-      });
-      const text = await r.text();
-      setError('API TEST: Status ' + r.status + ' - ' + text.substring(0,200));
-    } catch(e: any) {
-      setError('API TEST FAILED: ' + e.message);
     }
   };
 

@@ -386,8 +386,8 @@ export default function CRMPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <button className="p-1.5 text-gray-500 hover:text-blue-600"><Phone size={16} /></button>
-                        <button className="p-1.5 text-gray-500 hover:text-blue-600"><Mail size={16} /></button>
+                        <button onClick={() => contact.phone && window.open(`tel:${contact.phone}`)} className="p-1.5 text-gray-500 hover:text-blue-600"><Phone size={16} /></button>
+                        <button onClick={() => contact.email && window.open(`mailto:${contact.email}`)} className="p-1.5 text-gray-500 hover:text-blue-600"><Mail size={16} /></button>
                         <button onClick={() => setSelectedContact(contact)} className="p-1.5 text-gray-500 hover:text-blue-600"><Eye size={16} /></button>
                       </div>
                     </td>
@@ -440,7 +440,7 @@ export default function CRMPage() {
                 <span className="text-xl font-bold text-gray-900 dark:text-white">₹{invoice.total.toLocaleString()}</span>
               </div>
               {invoice.status !== 'paid' && (
-                <button className="mt-3 w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+                <button onClick={() => setInvoices(prev => prev.map(inv => inv.id === invoice.id ? { ...inv, status: 'paid' } : inv))} className="mt-3 w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
                   Mark as Paid
                 </button>
               )}
@@ -502,8 +502,8 @@ export default function CRMPage() {
                 <span className="flex items-center gap-1"><Clock size={14} /> {apt.time}</span>
               </div>
               <div className="flex gap-2 mt-3">
-                <button className="flex-1 py-1.5 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">Confirm</button>
-                <button className="flex-1 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Reschedule</button>
+                <button onClick={() => setAppointments(prev => prev.map(a => a.id === apt.id ? { ...a, status: 'confirmed' } : a))} className="flex-1 py-1.5 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">Confirm</button>
+                <button onClick={() => alert('Reschedule feature coming soon')} className="flex-1 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Reschedule</button>
               </div>
             </div>
           ))}
@@ -567,7 +567,7 @@ export default function CRMPage() {
                     {selectedContact.tasks.map(task => (
                       <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                         <div className="flex items-center gap-2">
-                          <input type="checkbox" checked={task.completed} className="rounded" />
+                          <input type="checkbox" checked={task.completed} onChange={() => setSelectedContact(prev => prev ? { ...prev, tasks: prev.tasks?.map(t => t.id === task.id ? { ...t, completed: !t.completed } : t) } : null)} className="rounded" />
                           <span className={task.completed ? 'line-through text-gray-400' : ''}>{task.title}</span>
                         </div>
                         <span className={`text-xs ${task.priority === 'high' ? 'text-red-500' : task.priority === 'medium' ? 'text-yellow-500' : 'text-gray-500'}`}>{task.dueDate}</span>
