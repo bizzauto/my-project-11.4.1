@@ -184,6 +184,7 @@ router.post('/sync', authenticate, async (req: any, res: Response) => {
         title: 'IndiaMART Email Sync',
         content: `Processed ${result.processed} emails, captured ${result.newLeads} new leads`,
         metadata: result,
+        createdBy: req.user.id,
       },
     });
 
