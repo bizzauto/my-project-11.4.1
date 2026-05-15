@@ -477,8 +477,11 @@ const QRConnectView: React.FC<{
                   </div>
                   <button
                     onClick={async () => {
-                      if (!evolutionConfig.baseUrl || !evolutionConfig.apiKey) { alert('API Base URL and API Key are required'); return; }
-                      await onEvolutionConfigChange({ ...evolutionConfig, configured: true }); setShowEvolutionForm(false);
+                      var url = evolutionConfig.baseUrl.trim();
+                      if (!url || !evolutionConfig.apiKey) { alert('API Base URL and API Key are required'); return; }
+                      if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+                      if (!/^https?:\/\/.+/.test(url)) { alert('Invalid URL format'); return; }
+                      await onEvolutionConfigChange({ ...evolutionConfig, baseUrl: url, configured: true }); setShowEvolutionForm(false);
                     }}
                     className="w-full px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold"
                   >
