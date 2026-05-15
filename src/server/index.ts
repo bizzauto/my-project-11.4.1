@@ -121,6 +121,9 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(cookieParser());
 
+// Trust proxy - required for rate limiter to get correct IP behind reverse proxy
+app.set('trust proxy', 1);
+
 // ==================== SECURITY MIDDLEWARE ====================
 
 // Rate limiting - prevent brute force & abuse
