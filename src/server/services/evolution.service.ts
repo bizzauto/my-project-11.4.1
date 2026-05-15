@@ -152,8 +152,9 @@ export class EvolutionApiService {
         status: 'scanning',
       };
     } catch (error: any) {
-      console.error('Evolution API connect error:', error.response?.data || error.message);
-      throw new Error('Failed to connect Evolution API instance');
+      const detail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+      console.error('Evolution API connect error:', detail);
+      throw new Error(`Failed to connect: ${detail}`);
     }
   }
 
