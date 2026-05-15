@@ -4,7 +4,7 @@ import { prisma } from '../index.js';
 import { encrypt, decrypt } from '../utils/auth.js';
 
 const evoApi = axios.create({
-  httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+  httpsAgent: new https.Agent({ rejectUnauthorized: false, keepAlive: true }),
 });
 
 /**
@@ -35,7 +35,7 @@ export class EvolutionApiService {
 
     const config = integration.config as any;
     return {
-      baseUrl: config.baseUrl || '',
+      baseUrl: (config.baseUrl || '').replace(/^https:\/\//i, 'http://'),
       apiKey: config.apiKey || '',
       instanceName: config.instanceName || `biz_${businessId.slice(-8)}`,
     };
@@ -135,22 +135,16 @@ export class EvolutionApiService {
     const config = await this.getConfig(businessId);
 
     try {
-      // Connect the instance
       await evoApi.post(
         `${config.baseUrl}/instance/connect/${config.instanceName}`,
         {},
         { headers: { apikey: config.apiKey } }
       );
-
-      // Fetch QR code
       const qrResponse = await evoApi.get(
-        `${config.baseUrl}/instance/qrcode/${config.instanceName}`,
+        `${baseUrl}/instance/qrcode/${config.instanceName}`,
         { headers: { apikey: config.apiKey } }
       );
-
-      // Update status
       await this.updateStatus(businessId, 'scanning');
-
       return {
         qrCode: qrResponse.data?.qrcode?.code || qrResponse.data?.base64 || '',
         qrCodeBase64: qrResponse.data?.qrcode?.base64Image || qrResponse.data?.base64Image,
