@@ -5,7 +5,7 @@ RUN apk add --no-cache openssl
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci && npm cache clean --force
+RUN npm install && npm cache clean --force
 
 COPY prisma ./prisma/
 RUN npx prisma generate
@@ -20,7 +20,7 @@ RUN apk add --no-cache openssl wget
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install --omit=dev && npm cache clean --force
 
 COPY prisma ./prisma/
 RUN npx prisma generate
