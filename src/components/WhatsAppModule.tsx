@@ -2217,7 +2217,8 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
       }
       setConnectionStatus('scanning');
     } catch (err: any) {
-      setApiError(err?.message || 'Failed to connect to Evolution API');
+      const serverMsg = err?.response?.data?.error || err?.message;
+      setApiError(serverMsg || 'Failed to connect to Evolution API');
     }
   };
 
