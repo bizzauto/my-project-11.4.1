@@ -180,7 +180,8 @@ const QRConnectView: React.FC<{
   evolutionConfig?: EvolutionConfig;
   onEvolutionConfigChange?: (config: EvolutionConfig) => void;
   onEvolutionConnect?: () => void;
-}> = ({ connectionStatus, connectedPhone, onConnect, onDisconnect, onRefreshQR, qrValue, connectionMode = 'qr', onModeChange = () => { }, evolutionConfig = { baseUrl: '', apiKey: '', instanceName: '', configured: false }, onEvolutionConfigChange = () => { }, onEvolutionConnect = () => { } }) => {
+  apiError?: string | null;
+}> = ({ connectionStatus, connectedPhone, onConnect, onDisconnect, onRefreshQR, qrValue, connectionMode = 'qr', onModeChange = () => { }, evolutionConfig = { baseUrl: '', apiKey: '', instanceName: '', configured: false }, onEvolutionConfigChange = () => { }, onEvolutionConnect = () => { }, apiError = null }) => {
   const [step, setStep] = useState(0);
   const [showEvolutionForm, setShowEvolutionForm] = useState(false);
 
@@ -387,13 +388,32 @@ const QRConnectView: React.FC<{
                         <p className="text-xs text-green-600">{evolutionConfig.baseUrl}</p>
                       </div>
                     </div>
-                    <button
-                      onClick={onEvolutionConnect}
-                      className="w-full px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
-                    >
-                      <QrCode size={20} />
-                      Connect & Get QR Code
-                    </button>
+                    {qrValue ? (
+                      <div className="flex flex-col items-center">
+                        <div className="bg-white border-2 border-purple-200 rounded-2xl p-6 mb-4">
+                          <img src={qrValue.startsWith('data:') ? qrValue : `data:image/png;base64,${qrValue}`} alt="QR Code" className="w-56 h-56" />
+                        </div>
+                        {apiError && <p className="text-sm text-red-600 mb-2">{apiError}</p>}
+                        <button
+                          onClick={onEvolutionConnect}
+                          className="px-6 py-2.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold flex items-center gap-2"
+                        >
+                          <RefreshCw size={16} />
+                          Refresh QR Code
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <button
+                          onClick={onEvolutionConnect}
+                          className="w-full px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
+                        >
+                          <QrCode size={20} />
+                          Connect & Get QR Code
+                        </button>
+                        {apiError && <p className="text-sm text-red-600">{apiError}</p>}
+                      </div>
+                    )}
                     <button
                       onClick={() => setShowEvolutionForm(true)}
                       className="text-sm text-gray-500 hover:text-gray-700 underline"
@@ -2089,19 +2109,20 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
           () => evolutionAPI.getConfig(),
           null as any
         );
-        if (mounted && config && config.baseUrl) {
+        const cfg = config?.data;
+        if (mounted && cfg && cfg.baseUrl) {
           setEvolutionConfig({
-            baseUrl: config.baseUrl || '',
-            apiKey: config.apiKey || '',
-            instanceName: config.instanceName || '',
-            configured: !!config.baseUrl,
+            baseUrl: cfg.baseUrl || '',
+            apiKey: cfg.apiKey || '',
+            instanceName: cfg.instanceName || '',
+            configured: !!cfg.baseUrl,
           });
-          if (config.instanceName) {
-            setEvolutionInstanceName(config.instanceName);
-            // Check status
+          if (cfg.instanceName) {
+            setEvolutionInstanceName(cfg.instanceName);
             try {
-              const status = await evolutionAPI.getStatus(config.instanceName);
-              if (mounted && status?.data?.state === 'open') {
+              const status = await evolutionAPI.getStatus(cfg.instanceName);
+              const st = status?.data?.data;
+              if (mounted && st?.status === 'connected') {
                 setIsEvolutionConnected(true);
                 setConnectionStatus('connected');
               }
@@ -2126,10 +2147,11 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
     if (isEvolutionConnected && evolutionInstanceName) {
       const loadChats = async () => {
         try {
-          const chatsData = await tryAPI(
+          const chatsRes = await tryAPI(
             () => evolutionAPI.getChats(evolutionInstanceName),
             null as any
           );
+          const chatsData = chatsRes?.data;
           if (!mounted) return;
           if (chatsData && Array.isArray(chatsData)) {
             // Map API chats to contacts
@@ -2181,8 +2203,11 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
 
       // Connect and get QR
       const connectRes = await evolutionAPI.connectInstance(instanceName);
-      if (connectRes?.data?.qrCode) {
-        setEvolutionQR(connectRes.data.qrCode);
+      const qrData = connectRes?.data?.data;
+      if (qrData?.qrCode) {
+        setEvolutionQR(connectRes.data.data.qrCode);
+      } else if (qrData?.qrCodeBase64) {
+        setEvolutionQR(connectRes.data.data.qrCodeBase64);
       }
       setConnectionStatus('scanning');
     } catch (err: any) {
@@ -2199,7 +2224,8 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
         instanceName: config.instanceName,
       });
     } catch {
-      // Config saved locally only
+      setApiError('Failed to save config on server. Saved locally.');
+      setTimeout(() => setApiError(null), 4000);
     }
   };
 
@@ -2336,6 +2362,7 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
             evolutionConfig={evolutionConfig}
             onEvolutionConfigChange={handleEvolutionConfigSave}
             onEvolutionConnect={handleEvolutionConnect}
+            apiError={apiError}
           />
         )}
         {currentView === 'chats' && (
