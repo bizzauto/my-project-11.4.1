@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Users, Search, Download, MessageSquare, Mail, Phone, Plus, X, Eye, Send, Trash2, MapPin, Package, Truck, CheckCircle, AlertCircle, RefreshCw, ArrowUpRight, TrendingUp, UserPlus, Settings, Zap, MailOpen, Shield } from 'lucide-react';
+import { Users, Search, Download, MessageSquare, Mail, Phone, Plus, X, Eye, Send, Trash2, MapPin, Package, Truck, CheckCircle, AlertCircle, RefreshCw, ArrowUpRight, TrendingUp, UserPlus, Settings, Zap, MailOpen, Shield, Upload } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RT, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useAuthStore } from '../lib/authStore';
 import { safeGetItem } from '../lib/storage';
@@ -41,6 +41,7 @@ export default function LeadGenerationPage(){
   const[detail,setDetail]=useState<Lead|null>(null);
   const[toast,setToast]=useState<{m:string;t:'success'|'error'}|null>(null);
   const[stats,setStats]=useState({total:0,today:0,bySource:[] as any[],byStatus:[] as any[]});
+  const importRef=useRef<HTMLInputElement>(null);
 
   const calc=(ll:Lead[])=>{const td=new Date().toDateString();const tc=ll.filter(l=>new Date(l.createdAt).toDateString()===td).length;const sm:Record<string,number>={},stm:Record<string,number>={};ll.forEach(l=>{sm[l.source]=(sm[l.source]||0)+1;const s=l.status||'new';stm[s]=(stm[s]||0)+1;});setStats({total:ll.length,today:tc,bySource:Object.entries(sm).map(([name,value])=>({name,value})),byStatus:Object.entries(stm).map(([name,value])=>({name,value}))});};
 
@@ -106,6 +107,8 @@ export default function LeadGenerationPage(){
     catch{toast_('Failed to add lead. Please try again.','error');}
   };
 
+  const handleImport=async(e:any)=>{var f=e.target.files?.[0];if(!f)return;e.target.value='';var t=await f.text();var lines=t.split('\n').filter(function(l:any){return l.trim()});if(lines.length<2){toast_('Invalid CSV','error');return}var s=0;var fl=0;for(var i=1;i<lines.length;i++){var cols=lines[i].split(',').map(function(c:any){return c.trim().replace(/^"|"$/g,'')});var d:any={name:cols[1]||'',phone:cols[4]||'',email:cols[5]||'',product:cols[2]||'',city:cols[3]||''};if(!d.phone){fl++;continue}try{var token=safeGetItem('token');var r=await fetch(API+'/leads/manual',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({businessId:bizId,source:'manual',leadData:d})});var res=await r.json();if(res.success)s++;else fl++}catch{fl++}}toast_('Imported '+s+' leads, '+fl+' failed','success');fetchLeads()};
+
   const csvExport=()=>{const x=sel.size>0?leads.filter(l=>sel.has(l.id)):leads;const h=['Name','Phone','Email','Company','Location','Product','Supplier','Requirement','Source','Status','Deal Value','Created At'];const rows=x.map(l=>[l.name,l.phone,l.email||'',l.company||'',l.location||'',l.product||'',l.supplier||'',l.requirement||'',l.source,l.status,l.dealValue?.toString()||'',new Date(l.createdAt).toLocaleString()]);const csv=[h,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');const b=new Blob([csv],{type:'text/csv'}),u=window.URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=`leads_${new Date().toISOString().slice(0,10)}.csv`;a.click();window.URL.revokeObjectURL(u);toast_('Exported CSV!','success');};
 
   const handleExport=async(fmt:'csv'|'excel'|'sheets')=>{
@@ -156,6 +159,8 @@ export default function LeadGenerationPage(){
         <div className="flex items-center gap-3">
           <button onClick={()=>fetchLeads()} className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"><RefreshCw size={18}/></button>
           <button onClick={()=>setShowExport(true)} className={`${btn} bg-green-600 hover:bg-green-700`}><Download size={16}/> Export</button>
+          <button onClick={()=>importRef.current?.click()} className={`${btn} bg-amber-600 hover:bg-amber-700`}><Upload size={16}/> Import</button>
+          <input ref={importRef} type="file" accept=".csv" className="hidden" onChange={handleImport}/>
           <button onClick={()=>setShowReply(true)} className={`${btn} bg-purple-600 hover:bg-purple-700`}><Send size={16}/> Bulk Reply</button>
           <button onClick={()=>setShowForm(true)} className={`${btn} bg-blue-600 hover:bg-blue-700`}><Plus size={16}/> Add Lead</button>
         </div>
