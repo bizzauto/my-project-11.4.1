@@ -154,10 +154,7 @@ const LoginPage: React.FC = () => {
                     <span className="text-sm">{error}</span>
                   </div>
                 )}
-                <button onClick={testApi} type="button" className="w-full mb-2 text-xs text-gray-400 hover:text-blue-600 underline">
-                🔧 Test API Connection
-              </button>
-              <button
+                <button
                   type="submit"
                   disabled={isLoading}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all flex items-center justify-center gap-2"
