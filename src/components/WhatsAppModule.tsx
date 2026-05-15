@@ -2213,10 +2213,10 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
       // Connect and get QR
       const connectRes = await evolutionAPI.connectInstance(instanceName);
       const qrData = connectRes?.data?.data;
-      if (qrData?.qrCode) {
-        setEvolutionQR(connectRes.data.data.qrCode);
-      } else if (qrData?.qrCodeBase64) {
+      if (qrData?.qrCodeBase64) {
         setEvolutionQR(connectRes.data.data.qrCodeBase64);
+      } else if (qrData?.qrCode) {
+        setEvolutionQR(connectRes.data.data.qrCode);
       }
       setConnectionStatus('scanning');
     } catch (err: any) {

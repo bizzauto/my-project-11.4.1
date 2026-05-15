@@ -141,13 +141,16 @@ export class EvolutionApiService {
         { headers: { apikey: config.apiKey } }
       );
       const qrResponse = await evoApi.get(
-        `${baseUrl}/instance/qrcode/${config.instanceName}`,
+        `${config.baseUrl}/instance/qrcode/${config.instanceName}`,
         { headers: { apikey: config.apiKey } }
       );
       await this.updateStatus(businessId, 'scanning');
+      const r = qrResponse.data;
+      const qrBase64 = r?.base64 || r?.qrcode?.base64Image || '';
+      const qrCodeText = r?.qrcode?.code || '';
       return {
-        qrCode: qrResponse.data?.qrcode?.code || qrResponse.data?.base64 || '',
-        qrCodeBase64: qrResponse.data?.qrcode?.base64Image || qrResponse.data?.base64Image,
+        qrCode: qrBase64 || qrCodeText || '',
+        qrCodeBase64: qrBase64 || '',
         status: 'scanning',
       };
     } catch (error: any) {
