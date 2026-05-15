@@ -594,4 +594,48 @@ router.post('/capture/:businessId', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * POST /api/leads/webhook/:businessId
+ * Universal webhook for lead collection from any platform (WhatsApp, Facebook, Instagram, etc.)
+ * Detects source from X-Lead-Source header or payload.source field.
+ */
+router.post('/webhook/:businessId', async (req: Request, res: Response) => {
+  try {
+    const { businessId } = req.params as { businessId: string };
+    const body = req.body;
+    const source = (req.headers['x-lead-source'] as string) || body.source || body.platform || 'webhook';
+
+    if (!body.phone && !body.email) {
+      return res.status(400).json({ success: false, error: 'Phone or email is required' });
+    }
+
+    const contact = await LeadCaptureService.upsertContact(businessId, {
+      name: body.name || `${source.charAt(0).toUpperCase() + source.slice(1)} Lead`,
+      phone: body.phone || '',
+      email: body.email,
+      company: body.company,
+      source,
+      tags: [source.charAt(0).toUpperCase() + source.slice(1), 'Lead'],
+      metadata: { ...body, capturedAt: new Date().toISOString() },
+    });
+
+    await prisma.activity.create({
+      data: {
+        businessId,
+        contactId: contact.id,
+        type: 'lead_captured',
+        title: `New lead from ${source}`,
+        content: `Captured via webhook`,
+        metadata: { source, raw: body },
+        createdBy: 'webhook',
+      },
+    });
+
+    res.json({ success: true, message: 'Lead captured', data: contact });
+  } catch (error: any) {
+    console.error('Webhook lead error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 export default router; // @ts-nocheck // @ts-nocheck
