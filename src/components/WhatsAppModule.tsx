@@ -476,7 +476,10 @@ const QRConnectView: React.FC<{
                     />
                   </div>
                   <button
-                    onClick={async () => { await onEvolutionConfigChange({ ...evolutionConfig, configured: true }); setShowEvolutionForm(false); }}
+                    onClick={async () => {
+                      if (!evolutionConfig.baseUrl || !evolutionConfig.apiKey) { alert('API Base URL and API Key are required'); return; }
+                      await onEvolutionConfigChange({ ...evolutionConfig, configured: true }); setShowEvolutionForm(false);
+                    }}
                     className="w-full px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold"
                   >
                     💾 Save Configuration
