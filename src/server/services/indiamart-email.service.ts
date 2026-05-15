@@ -362,6 +362,7 @@ export class IndiaMARTEmailService {
 
             imap.search(
               [
+                ['UNSEEN'],
                 ['SINCE', since],
                 ['FROM', 'indiamart'],
               ],
@@ -374,8 +375,11 @@ export class IndiaMARTEmailService {
 
                 const toFetch = results.slice(-limit);
                 const fetch = imap.fetch(toFetch, { bodies: '', struct: true });
+                let msgCount = 0;
+                let doneCount = 0;
 
-                fetch.on('message', async (msg) => {
+                fetch.on('message', (msg) => {
+                  msgCount++;
                   msg.on('body', async (stream, info) => {
                     try {
                       const parsed = await simpleParser(stream);
@@ -387,7 +391,6 @@ export class IndiaMARTEmailService {
                       if (leadData && (leadData.phone || leadData.email)) {
                         result.processed++;
 
-                        // Check if lead already exists
                         const existing = leadData.phone
                           ? await prisma.contact.findFirst({
                               where: {
@@ -403,7 +406,6 @@ export class IndiaMARTEmailService {
                           return;
                         }
 
-                        // Capture lead to database
                         const contact = await LeadCaptureService.captureIndiaMARTLead(businessId, {
                           name: leadData.name || 'IndiaMART Customer',
                           phone: leadData.phone || '',
@@ -418,13 +420,11 @@ export class IndiaMARTEmailService {
                       }
                     } catch (e: any) {
                       result.errors.push(`Parse error: ${e.message}`);
+                    } finally {
+                      doneCount++;
+                      if (doneCount >= msgCount) { imap.end(); resolve(); }
                     }
                   });
-                });
-
-                fetch.once('end', () => {
-                  imap.end();
-                  resolve();
                 });
 
                 fetch.once('error', (err) => {

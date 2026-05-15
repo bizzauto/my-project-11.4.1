@@ -31,6 +31,8 @@ import indiamartEmailRoutes from './routes/indiamart-email.js';
 import integrationsRoutes from './routes/integrations.js';
 import intelligenceRoutes from './routes/intelligence.js';
 import leadsRoutes from './routes/leads.js';
+import { IndiaMARTEmailService } from './services/indiamart-email.service.js';
+import { decrypt } from './utils/auth.js';
 import notificationsRoutes from './routes/notifications.js';
 import postersRoutes from './routes/posters.js';
 import postsRoutes from './routes/posts.js';
@@ -324,6 +326,39 @@ console.log(`Starting server on ${HOST}:${PORT} in ${NODE_ENV} mode`);
 app.listen(Number(PORT), () => {
   console.log(`Server running on port ${PORT} in ${NODE_ENV} mode`);
   logger.info(`Server running on port ${PORT} in ${NODE_ENV} mode`);
+
+  // IndiaMART auto-sync: check every 5 minutes for integrations with autoSync enabled
+  setInterval(async () => {
+    try {
+      const integrations = await prisma.integration.findMany({
+        where: { type: 'indiamart_email', isActive: true },
+      });
+      for (const integration of integrations) {
+        const cfg = integration.config as any;
+        if (!cfg.autoSync) continue;
+        const interval = (cfg.syncInterval || 60) * 60 * 1000;
+        const lastSync = cfg.lastSyncAt ? new Date(cfg.lastSyncAt).getTime() : 0;
+        if (Date.now() - lastSync < interval) continue;
+        const emailConfig = {
+          imapHost: cfg.imapHost,
+          imapPort: cfg.imapPort,
+          email: cfg.email,
+          password: decrypt(cfg.password),
+          useSSL: cfg.useSSL,
+        };
+        await IndiaMARTEmailService.processIndiaMARTEmails(integration.businessId, emailConfig, {
+          saveToSheet: !!cfg.spreadsheetId,
+          spreadsheetId: cfg.spreadsheetId,
+        });
+        await prisma.integration.update({
+          where: { id: integration.id },
+          data: { config: { ...cfg, lastSyncAt: new Date().toISOString() } as any },
+        });
+      }
+    } catch (e: any) {
+      logger.error('IndiaMART auto-sync error:', e.message);
+    }
+  }, 5 * 60 * 1000);
 });
 
 // Export authenticate middleware for use in routes
