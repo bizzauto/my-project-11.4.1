@@ -1,28 +1,31 @@
 FROM node:22-alpine AS builder
 
-RUN apk add --no-cache openssl python3 make g++
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
 COPY package*.json ./
+RUN npm ci && npm cache clean --force
+
 COPY prisma ./prisma/
-RUN npm install && npx prisma generate
+RUN npx prisma generate
 
 COPY . .
 RUN npm run build
 
 FROM node:22-alpine
 
-RUN apk add --no-cache openssl wget python3 make g++
+RUN apk add --no-cache openssl wget
 
 WORKDIR /app
 
 COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
 COPY prisma ./prisma/
-RUN npm install --omit=dev && npx prisma generate
+RUN npx prisma generate
 
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/public ./public
 
 EXPOSE 3000
 
