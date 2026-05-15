@@ -1,6 +1,6 @@
 FROM node:22-alpine AS builder
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl python3 make g++
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN npm run build
 
 FROM node:22-alpine
 
-RUN apk add --no-cache openssl wget
+RUN apk add --no-cache openssl wget python3 make g++
 
 WORKDIR /app
 
