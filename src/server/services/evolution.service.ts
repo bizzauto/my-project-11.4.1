@@ -119,8 +119,25 @@ export class EvolutionApiService {
 
       return response.data;
     } catch (error: any) {
-      console.error('Evolution API create instance error:', error.response?.data || error.message);
-      throw new Error(error.response?.data?.message || 'Failed to create Evolution API instance');
+      const errMsg = error.response?.data?.response?.message?.[0] || error.response?.data?.message || error.message;
+      console.error('Evolution API create instance error:', errMsg);
+      // If instance already exists, try to delete and recreate
+      if (errMsg?.includes('already in use')) {
+        try {
+          await evoApi.delete(`${options.baseUrl}/instance/delete/${instanceName}`, {
+            headers: { apikey: options.apiKey },
+          });
+          const retry = await evoApi.post(
+            `${options.baseUrl}/instance/create`,
+            { instanceName, qrcode: true, integration: 'WHATSAPP-BAILEYS' },
+            { headers: { 'Content-Type': 'application/json', apikey: options.apiKey } }
+          );
+          return retry.data;
+        } catch {
+          throw new Error('Failed to recreate Evolution API instance');
+        }
+      }
+      throw new Error(errMsg || 'Failed to create Evolution API instance');
     }
   }
 
