@@ -2199,18 +2199,7 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
       const instanceName = evolutionConfig.instanceName || `instance-${Date.now()}`;
       setEvolutionInstanceName(instanceName);
 
-      // Try to create instance
-      try {
-        await evolutionAPI.createInstance({
-          instanceName,
-          baseUrl: evolutionConfig.baseUrl,
-          apiKey: evolutionConfig.apiKey,
-        });
-      } catch {
-        // Instance may already exist, continue
-      }
-
-      // Connect and get QR
+      // Connect and get QR (creates instance if needed)
       const connectRes = await evolutionAPI.connectInstance(instanceName);
       const qrData = connectRes?.data?.data;
       if (qrData?.qrCodeBase64) {

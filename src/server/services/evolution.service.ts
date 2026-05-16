@@ -152,29 +152,46 @@ export class EvolutionApiService {
     const config = await this.getConfig(businessId);
     const resolvedInstanceName = instanceName || config.instanceName;
 
+    // Evolution API v2 returns QR code only at instance creation time.
+    // If instance already exists, delete it first, then create fresh to get QR.
     try {
-      await evoApi.post(
-        `${config.baseUrl}/instance/connect/${resolvedInstanceName}`,
-        {},
-        { headers: { apikey: config.apiKey } }
+      const createRes = await evoApi.post(
+        `${config.baseUrl}/instance/create`,
+        { instanceName: resolvedInstanceName, qrcode: true, integration: 'WHATSAPP-BAILEYS' },
+        { headers: { 'Content-Type': 'application/json', apikey: config.apiKey } }
       );
-      const qrResponse = await evoApi.get(
-        `${config.baseUrl}/instance/qrcode/${resolvedInstanceName}`,
-        { headers: { apikey: config.apiKey } }
-      );
-      await this.updateStatus(businessId, 'scanning');
-      const r = qrResponse.data;
-      const qrBase64 = r?.base64 || r?.qrcode?.base64Image || '';
+      const r = createRes.data;
+      const qrBase64 = r?.qrcode?.base64 || '';
       const qrCodeText = r?.qrcode?.code || '';
+      await this.updateStatus(businessId, 'scanning');
       return {
         qrCode: qrBase64 || qrCodeText || '',
         qrCodeBase64: qrBase64 || '',
         status: 'scanning',
       };
-    } catch (error: any) {
-      const detail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
-      console.error('Evolution API connect error:', detail);
-      throw new Error(`Failed to connect: ${detail}`);
+    } catch (createError: any) {
+      const errMsg = createError.response?.data?.response?.message?.[0] || '';
+      if (errMsg.includes('already in use')) {
+        // Delete existing instance, then recreate to get fresh QR
+        await evoApi.delete(`${config.baseUrl}/instance/delete/${resolvedInstanceName}`, {
+          headers: { apikey: config.apiKey },
+        });
+        const retryRes = await evoApi.post(
+          `${config.baseUrl}/instance/create`,
+          { instanceName: resolvedInstanceName, qrcode: true, integration: 'WHATSAPP-BAILEYS' },
+          { headers: { 'Content-Type': 'application/json', apikey: config.apiKey } }
+        );
+        const r = retryRes.data;
+        const qrBase64 = r?.qrcode?.base64 || '';
+        const qrCodeText = r?.qrcode?.code || '';
+        await this.updateStatus(businessId, 'scanning');
+        return {
+          qrCode: qrBase64 || qrCodeText || '',
+          qrCodeBase64: qrBase64 || '',
+          status: 'scanning',
+        };
+      }
+      throw createError;
     }
   }
 
