@@ -127,21 +127,22 @@ export class EvolutionApiService {
   /**
    * Connect to an existing instance and get QR code
    */
-  static async connectInstance(businessId: string): Promise<{
+  static async connectInstance(businessId: string, instanceName?: string): Promise<{
     qrCode: string;
     qrCodeBase64?: string;
     status: string;
   }> {
     const config = await this.getConfig(businessId);
+    const resolvedInstanceName = instanceName || config.instanceName;
 
     try {
       await evoApi.post(
-        `${config.baseUrl}/instance/connect/${config.instanceName}`,
+        `${config.baseUrl}/instance/connect/${resolvedInstanceName}`,
         {},
         { headers: { apikey: config.apiKey } }
       );
       const qrResponse = await evoApi.get(
-        `${config.baseUrl}/instance/qrcode/${config.instanceName}`,
+        `${config.baseUrl}/instance/qrcode/${resolvedInstanceName}`,
         { headers: { apikey: config.apiKey } }
       );
       await this.updateStatus(businessId, 'scanning');
