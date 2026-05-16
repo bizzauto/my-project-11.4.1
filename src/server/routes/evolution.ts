@@ -119,12 +119,14 @@ router.post('/send/text', authenticate, async (req: any, res: any) => {
     const businessId = req.user?.businessId;
     if (!businessId) return res.status(400).json({ success: false, error: 'Business ID required' });
 
-    const { to, message, delay, linkPreview } = req.body;
-    if (!to || !message) {
-      return res.status(400).json({ success: false, error: 'to and message are required' });
+    const { to, message, number, text, delay, linkPreview, instanceName } = req.body;
+    const resolvedTo = to || number;
+    const resolvedMessage = message || text;
+    if (!resolvedTo || !resolvedMessage) {
+      return res.status(400).json({ success: false, error: 'to/number and message/text are required' });
     }
 
-    const result = await EvolutionApiService.sendText(businessId, to, message, {
+    const result = await EvolutionApiService.sendText(businessId, resolvedTo, resolvedMessage, {
       delay, linkPreview,
     });
     res.json({ success: true, data: result });

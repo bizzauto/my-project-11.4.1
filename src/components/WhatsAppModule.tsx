@@ -199,9 +199,8 @@ const QRConnectView: React.FC<{
           <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle size={48} className="text-green-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">WhatsApp Connected! ✅</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">WhatsApp Connected!</h2>
           <p className="text-gray-600 mb-6">Your WhatsApp Business is linked and ready to use.</p>
-
           <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
             <div className="flex items-center justify-center gap-3">
               <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
@@ -210,37 +209,13 @@ const QRConnectView: React.FC<{
               <div className="text-left">
                 <p className="font-semibold text-gray-900">{connectedPhone}</p>
                 <p className="text-sm text-green-600 flex items-center gap-1">
-                  <Wifi size={14} /> Connected • Active
+                  <Wifi size={14} /> Connected
                 </p>
               </div>
             </div>
           </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-2xl font-bold text-gray-900">1,247</p>
-              <p className="text-sm text-gray-500">Messages Sent</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-2xl font-bold text-gray-900">98.5%</p>
-              <p className="text-sm text-gray-500">Delivery Rate</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-2xl font-bold text-gray-900">856</p>
-              <p className="text-sm text-gray-500">Contacts</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-2xl font-bold text-gray-900">12</p>
-              <p className="text-sm text-gray-500">Active Campaigns</p>
-            </div>
-          </div>
-
-          <button
-            onClick={onDisconnect}
-            className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors mx-auto font-medium"
-          >
-            <LogOut size={18} />
-            Disconnect WhatsApp
+          <button onClick={onDisconnect} className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors mx-auto font-medium">
+            <LogOut size={18} /> Disconnect
           </button>
         </div>
       </div>
@@ -257,236 +232,90 @@ const QRConnectView: React.FC<{
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Connect WhatsApp</h2>
           <p className="text-gray-600">Link your WhatsApp Business account to start messaging</p>
         </div>
-
-        {/* Connection Mode Selector */}
         <div className="flex justify-center mb-6">
           <div className="inline-flex bg-gray-100 rounded-xl p-1">
-            <button
-              onClick={() => onModeChange('meta')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${connectionMode === 'meta' ? 'bg-white shadow-sm text-green-700' : 'text-gray-500 hover:text-gray-700'
-                }`}
-            >
-              <Shield size={16} />
-              Meta Official API
+            <button onClick={() => onModeChange('meta')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${connectionMode === 'meta' ? 'bg-white shadow-sm text-green-700' : 'text-gray-500 hover:text-gray-700'}`}>
+              <Shield size={16} /> Meta API
             </button>
-            <button
-              onClick={() => onModeChange('evolution')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${connectionMode === 'evolution' ? 'bg-white shadow-sm text-purple-700' : 'text-gray-500 hover:text-gray-700'
-                }`}
-            >
-              <Zap size={16} />
-              Evolution API
+            <button onClick={() => onModeChange('evolution')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${connectionMode === 'evolution' ? 'bg-white shadow-sm text-purple-700' : 'text-gray-500 hover:text-gray-700'}`}>
+              <Zap size={16} /> Evolution API
             </button>
           </div>
         </div>
-
         {connectionMode === 'meta' ? (
           <div className="grid md:grid-cols-2 gap-8">
-            {/* QR Code Section */}
             <div className="flex flex-col items-center">
               <div className={`relative bg-white border-2 ${connectionStatus === 'scanning' ? 'border-green-400' : 'border-gray-200'} rounded-2xl p-6 mb-4 transition-all`}>
-                {connectionStatus === 'scanning' && (
-                  <div className="absolute inset-0 bg-green-500/5 rounded-2xl animate-pulse" />
-                )}
-                <QRCodeSVG
-                  value={qrValue}
-                  size={220}
-                  level="M"
-                  includeMargin={true}
-                  bgColor="#ffffff"
-                  fgColor="#1a1a1a"
-                  imageSettings={{
-                    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325D366'%3E%3Ccircle cx='12' cy='12' r='12'/%3E%3Cpath d='M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347' fill='white'/%3E%3C/svg%3E",
-                    x: undefined,
-                    y: undefined,
-                    height: 36,
-                    width: 36,
-                    excavate: true,
-                  }}
-                />
+                {connectionStatus === 'scanning' && <div className="absolute inset-0 bg-green-500/5 rounded-2xl animate-pulse" />}
+                <QRCodeSVG value={qrValue} size={220} level="M" includeMargin={true} bgColor="#ffffff" fgColor="#1a1a1a" />
                 {connectionStatus === 'connecting' && (
                   <div className="absolute inset-0 flex items-center justify-center bg-white/90 rounded-2xl">
-                    <div className="text-center">
-                      <RefreshCw size={32} className="animate-spin text-green-500 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-gray-700">Connecting...</p>
-                    </div>
+                    <div className="text-center"><RefreshCw size={32} className="animate-spin text-green-500 mx-auto mb-2" /><p className="text-sm font-medium text-gray-700">Connecting...</p></div>
                   </div>
                 )}
               </div>
-
-              <button
-                onClick={onRefreshQR}
-                className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 mb-2"
-              >
-                <RefreshCw size={14} />
-                Refresh QR Code
-              </button>
-
+              <button onClick={onRefreshQR} className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 mb-2"><RefreshCw size={14} /> Refresh QR</button>
               {connectionStatus === 'disconnected' && (
-                <button
-                  onClick={onConnect}
-                  className="mt-2 px-8 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-colors font-semibold shadow-lg shadow-green-500/30 flex items-center gap-2"
-                >
-                  <QrCode size={20} />
-                  Simulate Scan & Connect
-                </button>
+                <button onClick={onConnect} className="mt-2 px-8 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-colors font-semibold shadow-lg shadow-green-500/30 flex items-center gap-2"><QrCode size={20} /> Connect</button>
               )}
             </div>
-
-            {/* Instructions */}
             <div className="flex flex-col justify-center">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">How to connect:</h3>
               <div className="space-y-4">
-                {[
-                  { step: 1, icon: <Smartphone size={20} />, text: 'Open WhatsApp on your phone', done: step >= 0 },
-                  { step: 2, icon: <MoreVertical size={20} />, text: 'Tap Menu (⋮) or Settings', done: step >= 1 },
-                  { step: 3, icon: <Link2 size={20} />, text: 'Tap "Linked Devices"', done: step >= 2 },
-                  { step: 4, icon: <QrCode size={20} />, text: 'Tap "Link a Device"', done: step >= 3 },
-                  { step: 5, icon: <Smartphone size={20} />, text: 'Point your phone at this QR code', done: step >= 4 },
-                ].map((item) => (
+                {[{ step: 1, text: 'Open WhatsApp on your phone', done: step >= 0 }, { step: 2, text: 'Tap Menu or Settings', done: step >= 1 }, { step: 3, text: 'Tap "Linked Devices"', done: step >= 2 }, { step: 4, text: 'Tap "Link a Device"', done: step >= 3 }, { step: 5, text: 'Point phone at QR code', done: step >= 4 }].map((item) => (
                   <div key={item.step} className={`flex items-center gap-3 p-3 rounded-lg transition-all ${item.done ? 'bg-green-50' : 'bg-gray-50'}`}>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${item.done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}`}>
-                      {item.done ? <Check size={16} /> : item.step}
-                    </div>
-                    <span className={`text-sm ${item.done ? 'text-green-700' : 'text-gray-600'}`}>
-                      {item.text}
-                    </span>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${item.done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}`}>{item.done ? <Check size={16} /> : item.step}</div>
+                    <span className={`text-sm ${item.done ? 'text-green-700' : 'text-gray-600'}`}>{item.text}</span>
                   </div>
                 ))}
-              </div>
-
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                <div className="flex items-start gap-2">
-                  <Shield size={18} className="text-blue-500 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-blue-800">End-to-end encrypted</p>
-                    <p className="text-xs text-blue-600 mt-1">Your messages are secured with end-to-end encryption. Neither WhatsApp nor any third party can read them.</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         ) : (
-          /* Evolution API Mode */
           <div className="max-w-lg mx-auto">
             {!showEvolutionForm ? (
               <div className="text-center">
-                <div className="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Zap size={40} className="text-purple-600" />
-                </div>
+                <div className="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><Zap size={40} className="text-purple-600" /></div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Evolution API</h3>
-                <p className="text-gray-500 text-sm mb-6">
-                  Connect via Evolution API for WhatsApp Web-based messaging. Scan QR code from your phone to link devices.
-                </p>
-
+                <p className="text-gray-500 text-sm mb-6">Connect via Evolution API for WhatsApp Web-based messaging.</p>
                 {evolutionConfig.configured ? (
                   <div className="space-y-4">
                     <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
                       <CheckCircle size={20} className="text-green-600" />
                       <div className="text-left">
-                        <p className="text-sm font-medium text-green-800">Evolution API Configured</p>
+                        <p className="text-sm font-medium text-green-800">Configured</p>
                         <p className="text-xs text-green-600">{evolutionConfig.baseUrl}</p>
                       </div>
                     </div>
                     {qrValue ? (
                       <div className="flex flex-col items-center">
                         <div className="bg-white border-2 border-purple-200 rounded-2xl p-6 mb-4">
-                          <img src={qrValue.startsWith('data:') ? qrValue : `data:image/png;base64,${qrValue}`} alt="QR Code" className="w-56 h-56" />
+                          <img src={qrValue.startsWith('data:') ? qrValue : `data:image/png;base64,${qrValue}`} alt="QR" className="w-56 h-56" />
                         </div>
                         {apiError && <p className="text-sm text-red-600 mb-2">{apiError}</p>}
-                        <button
-                          onClick={onEvolutionConnect}
-                          className="px-6 py-2.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold flex items-center gap-2"
-                        >
-                          <RefreshCw size={16} />
-                          Refresh QR Code
-                        </button>
+                        <button onClick={onEvolutionConnect} className="px-6 py-2.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold flex items-center gap-2"><RefreshCw size={16} /> Refresh QR</button>
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        <button
-                          onClick={onEvolutionConnect}
-                          className="w-full px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
-                        >
-                          <QrCode size={20} />
-                          Connect & Get QR Code
-                        </button>
+                        <button onClick={onEvolutionConnect} className="w-full px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"><QrCode size={20} /> Connect & Get QR</button>
                         {apiError && <p className="text-sm text-red-600">{apiError}</p>}
                       </div>
                     )}
-                    <button
-                      onClick={() => setShowEvolutionForm(true)}
-                      className="text-sm text-gray-500 hover:text-gray-700 underline"
-                    >
-                      Update Configuration
-                    </button>
+                    <button onClick={() => setShowEvolutionForm(true)} className="text-sm text-gray-500 hover:text-gray-700 underline">Update Config</button>
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setShowEvolutionForm(true)}
-                    className="w-full px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
-                  >
-                    <SettingsIcon size={20} />
-                    Configure Evolution API
-                  </button>
+                  <button onClick={() => setShowEvolutionForm(true)} className="w-full px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"><SettingsIcon size={20} /> Configure Evolution API</button>
                 )}
-
-                <div className="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-xl text-left">
-                  <p className="text-sm font-medium text-purple-800 mb-2">What is Evolution API?</p>
-                  <p className="text-xs text-purple-600">
-                    Evolution API is an open-source WhatsApp Web API that lets you connect via QR code scanning — no Meta Business approval needed. Perfect for small businesses and quick setup.
-                  </p>
-                </div>
               </div>
             ) : (
               <div>
-                <button onClick={() => setShowEvolutionForm(false)} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4">
-                  <ArrowLeft size={14} /> Back
-                </button>
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Evolution API Configuration</h3>
+                <button onClick={() => setShowEvolutionForm(false)} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4"><ArrowLeft size={14} /> Back</button>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Evolution API Config</h3>
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">API Base URL</label>
-                    <input
-                      type="url"
-                      value={evolutionConfig.baseUrl}
-                      onChange={e => onEvolutionConfigChange({ ...evolutionConfig, baseUrl: e.target.value })}
-                      placeholder="https://your-evolution-api.com"
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">API Key</label>
-                    <input
-                      type="password"
-                      value={evolutionConfig.apiKey}
-                      onChange={e => onEvolutionConfigChange({ ...evolutionConfig, apiKey: e.target.value })}
-                      placeholder="Your Evolution API key"
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Instance Name <span className="text-gray-400">(optional)</span></label>
-                    <input
-                      type="text"
-                      value={evolutionConfig.instanceName}
-                      onChange={e => onEvolutionConfigChange({ ...evolutionConfig, instanceName: e.target.value })}
-                      placeholder="Auto-generated if empty"
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
-                    />
-                  </div>
-                  <button
-                    onClick={async () => {
-                      var url = evolutionConfig.baseUrl.trim();
-                      if (!url || !evolutionConfig.apiKey) { alert('API Base URL and API Key are required'); return; }
-                      if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
-                      if (!/^https?:\/\/.+/.test(url)) { alert('Invalid URL format'); return; }
-                      await onEvolutionConfigChange({ ...evolutionConfig, baseUrl: url, configured: true }); setShowEvolutionForm(false);
-                    }}
-                    className="w-full px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold"
-                  >
-                    💾 Save Configuration
-                  </button>
+                  <div><label className="block text-sm font-medium text-gray-700 mb-1">API Base URL</label><input type="url" value={evolutionConfig.baseUrl} onChange={e => onEvolutionConfigChange({ ...evolutionConfig, baseUrl: e.target.value })} placeholder="https://your-evolution-api.com" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm" /></div>
+                  <div><label className="block text-sm font-medium text-gray-700 mb-1">API Key</label><input type="password" value={evolutionConfig.apiKey} onChange={e => onEvolutionConfigChange({ ...evolutionConfig, apiKey: e.target.value })} placeholder="Your Evolution API key" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm" /></div>
+                  <div><label className="block text-sm font-medium text-gray-700 mb-1">Instance Name <span className="text-gray-400">(optional)</span></label><input type="text" value={evolutionConfig.instanceName} onChange={e => onEvolutionConfigChange({ ...evolutionConfig, instanceName: e.target.value })} placeholder="Auto-generated if empty" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm" /></div>
+                  <button onClick={async () => { var url = evolutionConfig.baseUrl.trim(); if (!url || !evolutionConfig.apiKey) { alert('API Base URL and API Key are required'); return; } if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url; await onEvolutionConfigChange({ ...evolutionConfig, baseUrl: url, configured: true }); setShowEvolutionForm(false); }} className="w-full px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold">Save Config</button>
                 </div>
               </div>
             )}
@@ -520,12 +349,6 @@ const ChatView: React.FC<{
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [filter, setFilter] = useState<'all' | 'unread' | 'groups'>('all');
   const [templates, setTemplates] = useState<WATemplate[]>([]);
-
-  useEffect(() => {
-    let mounted = true;
-    fetchTemplates().then(t => { if (mounted) setTemplates(t); });
-    return () => { mounted = false; };
-  }, []);
   const [showNewChat, setShowNewChat] = useState(false);
   const [newChatPhone, setNewChatPhone] = useState('');
   const [showSchedulePopup, setShowSchedulePopup] = useState(false);
@@ -533,9 +356,14 @@ const ChatView: React.FC<{
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    let mounted = true;
+    fetchTemplates().then(t => { if (mounted) setTemplates(t); });
+    return () => { mounted = false; };
+  }, []);
+
   const filteredContacts = contacts.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.phone.includes(searchQuery);
+    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.phone.includes(searchQuery);
     if (filter === 'unread') return matchesSearch && c.unreadCount > 0;
     if (filter === 'groups') return matchesSearch && c.isGroup;
     return matchesSearch;
@@ -552,22 +380,12 @@ const ChatView: React.FC<{
     setShowNewChat(false);
   }, []);
 
-  const simTimer1 = useRef<ReturnType<typeof setTimeout>>();
-  const simTimer2 = useRef<ReturnType<typeof setTimeout>>();
-  const connTimer1 = useRef<ReturnType<typeof setTimeout>>();
-  const connTimer2 = useRef<ReturnType<typeof setTimeout>>();
-  const tmplTimer1 = useRef<ReturnType<typeof setTimeout>>();
-  const tmplTimer2 = useRef<ReturnType<typeof setTimeout>>();
-  useEffect(() => () => {
-    [simTimer1, simTimer2, connTimer1, connTimer2, tmplTimer1, tmplTimer2].forEach(t => clearTimeout(t.current));
-  }, []);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const handleSend = async () => {
     if (!message.trim() || !selectedContact) return;
-
     const newMsg: WAMessage = {
       id: `msg-${Date.now()}`,
       content: message,
@@ -577,13 +395,10 @@ const ChatView: React.FC<{
       status: 'sending',
       type: 'text',
     };
-
     setMessages(prev => [...prev, newMsg]);
     setMessage('');
     onSendMessage(selectedContact.id, message);
     inputRef.current?.focus();
-
-    // Try Evolution API first
     if (isConnected && evolutionInstanceName) {
       try {
         await evolutionAPI.sendText({
@@ -592,22 +407,13 @@ const ChatView: React.FC<{
           text: message,
         });
         setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'sent' } : m));
-      } catch {
-        // API failed, keep local simulation
-        setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'sent' } : m));
+        setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'delivered' } : m)), 1000);
+      } catch (err: any) {
+        setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'failed' } : m));
       }
     } else {
-      // Simulate status updates (mock fallback)
-      simTimer1.current = setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'sent' } : m)), 500);
-    }
-
-    if (!isConnected || !evolutionInstanceName) {
-      simTimer2.current = setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'delivered' } : m)), 1500);
-    }
-
-    // Auto-reply only when connected via Evolution API
-    if (isConnected && evolutionInstanceName) {
-      // Real messages will come via webhook, no simulation needed
+      setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'sent' } : m)), 500);
+      setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'delivered' } : m)), 1500);
     }
   };
 
@@ -654,133 +460,65 @@ const ChatView: React.FC<{
     };
     setMessages(prev => [...prev, newMsg]);
     setShowTemplatePanel(false);
-    tmplTimer1.current = setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'sent' } : m)), 500);
-    tmplTimer2.current = setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'delivered' } : m)), 1500);
+    setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'sent' } : m)), 500);
+    setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'delivered' } : m)), 1500);
   };
 
   return (
     <div className="flex h-full">
       {/* Contact List */}
       <div className={`w-96 bg-white border-r border-gray-200 flex flex-col ${selectedContact ? 'hidden lg:flex' : 'flex'}`}>
-        {/* Header */}
         <div className="p-4 bg-gradient-to-r from-green-600 to-emerald-600">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <MessageSquare size={22} />
-              Chats
-            </h2>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2"><MessageSquare size={22} /> Chats</h2>
             <div className="flex items-center gap-1">
-              <button onClick={() => setShowNewChat(true)} className="p-2 hover:bg-white/20 rounded-lg text-white" title="New Chat">
-                <Plus size={20} />
-              </button>
-              <button className="p-2 hover:bg-white/20 rounded-lg text-white" title="More">
-                <MoreVertical size={20} />
-              </button>
+              <button onClick={() => setShowNewChat(true)} className="p-2 hover:bg-white/20 rounded-lg text-white" title="New Chat"><Plus size={20} /></button>
+              <button className="p-2 hover:bg-white/20 rounded-lg text-white" title="More"><MoreVertical size={20} /></button>
             </div>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60" size={18} />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search or start new chat..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white/20 text-white placeholder-white/60 rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-white/30"
-            />
+            <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search or start new chat..." className="w-full pl-10 pr-4 py-2.5 bg-white/20 text-white placeholder-white/60 rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-white/30" />
           </div>
         </div>
-
-        {/* Filters */}
         <div className="flex gap-1 p-2 border-b border-gray-100 bg-gray-50">
           {(['all', 'unread', 'groups'] as const).map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filter === f ? 'bg-green-500 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-200'
-                }`}
-            >
+            <button key={f} onClick={() => setFilter(f)} className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filter === f ? 'bg-green-500 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-200'}`}>
               {f === 'all' ? 'All' : f === 'unread' ? `Unread (${contacts.filter(c => c.unreadCount > 0).length})` : 'Groups'}
             </button>
           ))}
         </div>
-
-        {/* New Chat Input */}
         {showNewChat && (
           <div className="p-3 border-b border-gray-200 bg-blue-50">
             <p className="text-xs font-semibold text-blue-700 mb-2">Start New Chat</p>
             <div className="flex gap-2">
-              <input
-                type="tel"
-                value={newChatPhone}
-                onChange={(e) => setNewChatPhone(e.target.value)}
-                placeholder="+91 8983027975"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-              <button
-                onClick={() => {
-                  if (newChatPhone.trim()) {
-                    const newContact: WAContact = {
-                      id: `new-${Date.now()}`,
-                      name: newChatPhone,
-                      phone: newChatPhone,
-                      avatar: newChatPhone.slice(-2),
-                      lastMessage: 'Start chatting...',
-                      lastMessageTime: 'Now',
-                      unreadCount: 0,
-                      online: false,
-                      tags: ['New'],
-                      isGroup: false,
-                    };
-                    selectContact(newContact);
-                    setShowNewChat(false);
-                    setNewChatPhone('');
-                  }
-                }}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600"
-              >
-                Chat
-              </button>
-              <button onClick={() => setShowNewChat(false)} className="px-2 py-2 text-gray-500 hover:text-gray-700">
-                <X size={18} />
-              </button>
+              <input type="tel" value={newChatPhone} onChange={(e) => setNewChatPhone(e.target.value)} placeholder="+91 8983027975" className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500" />
+              <button onClick={() => { if (newChatPhone.trim()) { const nc: WAContact = { id: `new-${Date.now()}`, name: newChatPhone, phone: newChatPhone, avatar: newChatPhone.slice(-2), lastMessage: 'Start chatting...', lastMessageTime: 'Now', unreadCount: 0, online: false, tags: ['New'], isGroup: false }; selectContact(nc); setShowNewChat(false); setNewChatPhone(''); } }} className="px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600">Chat</button>
+              <button onClick={() => setShowNewChat(false)} className="px-2 py-2 text-gray-500 hover:text-gray-700"><X size={18} /></button>
             </div>
           </div>
         )}
-
-        {/* Contact List */}
         <div className="flex-1 overflow-y-auto">
-          {filteredContacts.map((contact) => (
-            <button
-              key={contact.id}
-              onClick={() => selectContact(contact)}
-              className={`w-full p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors text-left flex items-center gap-3 ${selectedContact?.id === contact.id ? 'bg-green-50 border-l-4 border-l-green-500' : ''
-                }`}
-            >
+          {filteredContacts.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              <MessageSquare size={40} className="mx-auto mb-3 text-gray-300" />
+              <p className="text-sm">No contacts yet</p>
+              <p className="text-xs mt-1">Connect WhatsApp and scan QR to load contacts</p>
+            </div>
+          ) : filteredContacts.map((contact) => (
+            <button key={contact.id} onClick={() => selectContact(contact)} className={`w-full p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors text-left flex items-center gap-3 ${selectedContact?.id === contact.id ? 'bg-green-50 border-l-4 border-l-green-500' : ''}`}>
               <div className="relative">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold text-white text-sm ${contact.isGroup ? 'bg-gradient-to-br from-blue-400 to-blue-600' : 'bg-gradient-to-br from-green-400 to-emerald-600'
-                  }`}>
-                  {contact.avatar}
-                </div>
-                {contact.online && !contact.isGroup && (
-                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full" />
-                )}
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold text-white text-sm ${contact.isGroup ? 'bg-gradient-to-br from-blue-400 to-blue-600' : 'bg-gradient-to-br from-green-400 to-emerald-600'}`}>{contact.avatar}</div>
+                {contact.online && !contact.isGroup && <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full" />}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
                   <h3 className="font-semibold text-gray-900 text-sm truncate">{contact.name}</h3>
-                  <span className={`text-xs ${contact.unreadCount > 0 ? 'text-green-600 font-semibold' : 'text-gray-500'}`}>
-                    {contact.lastMessageTime}
-                  </span>
+                  <span className={`text-xs ${contact.unreadCount > 0 ? 'text-green-600 font-semibold' : 'text-gray-500'}`}>{contact.lastMessageTime}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className={`text-xs truncate pr-2 ${contact.unreadCount > 0 ? 'font-semibold text-gray-800' : 'text-gray-500'}`}>
-                    {contact.lastMessage}
-                  </p>
-                  {contact.unreadCount > 0 && (
-                    <span className="bg-green-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
-                      {contact.unreadCount}
-                    </span>
-                  )}
+                  <p className={`text-xs truncate pr-2 ${contact.unreadCount > 0 ? 'font-semibold text-gray-800' : 'text-gray-500'}`}>{contact.lastMessage}</p>
+                  {contact.unreadCount > 0 && <span className="bg-green-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">{contact.unreadCount}</span>}
                 </div>
               </div>
             </button>
@@ -792,167 +530,68 @@ const ChatView: React.FC<{
       <div className={`flex-1 flex flex-col bg-[#efeae2] ${!selectedContact ? 'hidden lg:flex' : 'flex'}`}>
         {selectedContact ? (
           <>
-            {/* Chat Header */}
             <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-3 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-3">
-                <button onClick={() => setSelectedContact(null)} className="lg:hidden p-1 text-white hover:bg-white/20 rounded">
-                  <ArrowLeft size={20} />
-                </button>
+                <button onClick={() => setSelectedContact(null)} className="lg:hidden p-1 text-white hover:bg-white/20 rounded"><ArrowLeft size={20} /></button>
                 <div className="relative cursor-pointer" onClick={() => setShowContactInfo(!showContactInfo)}>
-                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                    {selectedContact.avatar}
-                  </div>
+                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white font-semibold text-sm">{selectedContact.avatar}</div>
                   {selectedContact.online && <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-300 border-2 border-green-600 rounded-full" />}
                 </div>
                 <div className="cursor-pointer" onClick={() => setShowContactInfo(!showContactInfo)}>
                   <h3 className="font-semibold text-white text-sm">{selectedContact.name}</h3>
-                  <p className="text-xs text-green-100">
-                    {isTyping ? (
-                      <span className="italic">typing...</span>
-                    ) : selectedContact.online ? (
-                      'online'
-                    ) : (
-                      selectedContact.phone
-                    )}
-                  </p>
+                  <p className="text-xs text-green-100">{isTyping ? <span className="italic">typing...</span> : selectedContact.online ? 'online' : selectedContact.phone}</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <button className="p-2 hover:bg-white/20 rounded-lg text-white" title="Video Call">
-                  <Video size={20} />
-                </button>
-                <button className="p-2 hover:bg-white/20 rounded-lg text-white" title="Voice Call">
-                  <Phone size={20} />
-                </button>
-                <button className="p-2 hover:bg-white/20 rounded-lg text-white" title="Search in chat">
-                  <Search size={20} />
-                </button>
-                <button
-                  onClick={() => setShowContactInfo(!showContactInfo)}
-                  className="p-2 hover:bg-white/20 rounded-lg text-white"
-                  title="Contact Info"
-                >
-                  <MoreVertical size={20} />
-                </button>
+                <button className="p-2 hover:bg-white/20 rounded-lg text-white" title="Video Call"><Video size={20} /></button>
+                <button className="p-2 hover:bg-white/20 rounded-lg text-white" title="Voice Call"><Phone size={20} /></button>
+                <button onClick={() => setShowContactInfo(!showContactInfo)} className="p-2 hover:bg-white/20 rounded-lg text-white" title="Contact Info"><MoreVertical size={20} /></button>
               </div>
             </div>
 
             <div className="flex flex-1 overflow-hidden">
-              {/* Messages Area */}
               <div className="flex-1 flex flex-col">
-                <div className="flex-1 overflow-y-auto p-4 space-y-2" style={{
-                  backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23d5cec5\' fill-opacity=\'0.15\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'
-                }}>
-                  {/* Date separator */}
-                  <div className="flex items-center justify-center my-3">
-                    <span className="bg-white/90 text-gray-600 text-xs px-4 py-1 rounded-full shadow-sm font-medium">
-                      Today
-                    </span>
-                  </div>
-
+                <div className="flex-1 overflow-y-auto p-4 space-y-2" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23d5cec5\' fill-opacity=\'0.15\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}>
+                  <div className="flex items-center justify-center my-3"><span className="bg-white/90 text-gray-600 text-xs px-4 py-1 rounded-full shadow-sm font-medium">Today</span></div>
                   {messages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[70%] rounded-xl px-3 py-2 shadow-sm relative group ${msg.direction === 'outbound'
-                        ? 'bg-[#d9fdd3] rounded-tr-none'
-                        : 'bg-white rounded-tl-none'
-                        }`}>
-                        {msg.type === 'template' && (
-                          <div className="flex items-center gap-1 mb-1">
-                            <FileText size={12} className="text-blue-500" />
-                            <span className="text-xs text-blue-500 font-medium">Template Message</span>
-                          </div>
-                        )}
-                        {msg.type === 'image' && msg.mediaUrl && (
-                          <div className="mb-2">
-                            <img src={msg.mediaUrl} alt="Media" className="rounded-lg max-w-full" />
-                            {msg.caption && <p className="text-sm text-gray-800 mt-1">{msg.caption}</p>}
-                          </div>
-                        )}
+                      <div className={`max-w-[70%] rounded-xl px-3 py-2 shadow-sm relative group ${msg.direction === 'outbound' ? 'bg-[#d9fdd3] rounded-tr-none' : 'bg-white rounded-tl-none'}`}>
+                        {msg.type === 'template' && <div className="flex items-center gap-1 mb-1"><FileText size={12} className="text-blue-500" /><span className="text-xs text-blue-500 font-medium">Template</span></div>}
+                        {msg.type === 'image' && msg.mediaUrl && <div className="mb-2"><img src={msg.mediaUrl} alt="Media" className="rounded-lg max-w-full" />{msg.caption && <p className="text-sm text-gray-800 mt-1">{msg.caption}</p>}</div>}
                         {msg.content && <p className="text-sm text-gray-800 whitespace-pre-wrap">{msg.content}</p>}
-                        <div className={`flex items-center justify-end gap-1 mt-1 ${msg.direction === 'outbound' ? '' : ''}`}>
+                        <div className="flex items-center justify-end gap-1 mt-1">
                           <span className="text-[10px] text-gray-500">{msg.time}</span>
                           {msg.direction === 'outbound' && <MessageStatus status={msg.status} />}
-                        </div>
-
-                        {/* Hover actions */}
-                        <div className="absolute -top-2 right-2 hidden group-hover:flex items-center gap-1 bg-white rounded-lg shadow-md p-1">
-                          <button className="p-1 hover:bg-gray-100 rounded text-gray-500" title="React">
-                            <Smile size={14} />
-                          </button>
-                          <button className="p-1 hover:bg-gray-100 rounded text-gray-500" title="Reply">
-                            <ArrowLeft size={14} />
-                          </button>
-                          <button className="p-1 hover:bg-gray-100 rounded text-gray-500" title="Star">
-                            <Star size={14} />
-                          </button>
-                          <button className="p-1 hover:bg-gray-100 rounded text-gray-500" title="More">
-                            <ChevronDown size={14} />
-                          </button>
                         </div>
                       </div>
                     </div>
                   ))}
-
-                  {/* Typing indicator */}
-                  {isTyping && (
-                    <div className="flex justify-start">
-                      <div className="bg-white rounded-xl rounded-tl-none px-4 py-3 shadow-sm">
-                        <div className="flex gap-1.5">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
+                  {isTyping && <div className="flex justify-start"><div className="bg-white rounded-xl rounded-tl-none px-4 py-3 shadow-sm"><div className="flex gap-1.5"><div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} /><div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} /><div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} /></div></div></div>}
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* AI Reply Panel */}
                 {showAIPanel && (
                   <div className="bg-purple-50 border-t border-purple-200 p-3">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-semibold text-purple-800 flex items-center gap-1"><Zap size={14} /> AI Reply Suggestions</h4>
+                      <h4 className="text-sm font-semibold text-purple-800 flex items-center gap-1"><Zap size={14} /> AI Reply</h4>
                       <button onClick={() => setShowAIPanel(false)} className="text-purple-400 hover:text-purple-600"><X size={16} /></button>
                     </div>
                     <div className="space-y-2">
-                      {aiReplySuggestions.map((suggestion, i) => (
-                        <button
-                          key={i}
-                          onClick={() => { setMessage(suggestion); setShowAIPanel(false); inputRef.current?.focus(); }}
-                          className="w-full text-left p-2.5 bg-white rounded-lg text-sm text-gray-700 hover:bg-purple-100 border border-purple-200 transition-colors"
-                        >
-                          {suggestion}
-                        </button>
-                      ))}
+                      {aiReplySuggestions.map((s, i) => (<button key={i} onClick={() => { setMessage(s); setShowAIPanel(false); inputRef.current?.focus(); }} className="w-full text-left p-2.5 bg-white rounded-lg text-sm text-gray-700 hover:bg-purple-100 border border-purple-200">{s}</button>))}
                     </div>
-                    <button className="mt-2 text-xs text-purple-600 hover:text-purple-800 flex items-center gap-1">
-                      <RefreshCw size={12} /> Generate more suggestions
-                    </button>
                   </div>
                 )}
 
-                {/* Template Panel */}
                 {showTemplatePanel && (
                   <div className="bg-blue-50 border-t border-blue-200 p-3 max-h-60 overflow-y-auto">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-semibold text-blue-800 flex items-center gap-1"><FileText size={14} /> Quick Templates</h4>
+                      <h4 className="text-sm font-semibold text-blue-800 flex items-center gap-1"><FileText size={14} /> Templates</h4>
                       <button onClick={() => setShowTemplatePanel(false)} className="text-blue-400 hover:text-blue-600"><X size={16} /></button>
                     </div>
                     <div className="space-y-2">
                       {templates.filter(t => t.status === 'approved').slice(0, 4).map(template => (
-                        <button
-                          key={template.id}
-                          onClick={() => handleSendTemplate(template)}
-                          className="w-full text-left p-2.5 bg-white rounded-lg text-sm text-gray-700 hover:bg-blue-100 border border-blue-200 transition-colors"
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-medium text-blue-800">{template.name.replace(/_/g, ' ')}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${template.category === 'MARKETING' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
-                              {template.category}
-                            </span>
-                          </div>
+                        <button key={template.id} onClick={() => handleSendTemplate(template)} className="w-full text-left p-2.5 bg-white rounded-lg text-sm text-gray-700 hover:bg-blue-100 border border-blue-200">
+                          <span className="font-medium text-blue-800">{template.name.replace(/_/g, ' ')}</span>
                           <p className="text-xs text-gray-500 truncate">{template.content.substring(0, 80)}...</p>
                         </button>
                       ))}
@@ -960,68 +599,49 @@ const ChatView: React.FC<{
                   </div>
                 )}
 
+                {/* Schedule Popup */}
+                {showSchedulePopup && (
+                  <div className="bg-white border-t border-gray-200 p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-1"><Calendar size={14} /> Schedule</h4>
+                      <button onClick={() => setShowSchedulePopup(false)} className="text-gray-400 hover:text-gray-600"><X size={16} /></button>
+                    </div>
+                    <input type="datetime-local" value={scheduleDate} min={new Date().toISOString().slice(0, 16)} onChange={e => setScheduleDate(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mb-3 focus:ring-2 focus:ring-green-500" />
+                    <div className="flex gap-2">
+                      <button onClick={handleScheduleSend} disabled={!scheduleDate || !message.trim()} className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 disabled:opacity-50 flex items-center justify-center gap-1"><Calendar size={14} /> Schedule</button>
+                      <button onClick={() => setShowSchedulePopup(false)} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200">Cancel</button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Message Input */}
                 <div className="bg-[#f0f2f5] px-4 py-3 border-t border-gray-200">
-                  {/* Attachment Menu */}
                   {showAttachMenu && (
                     <div className="mb-3 flex gap-3 justify-center">
-                      {[
-                        { icon: <ImageIcon size={20} />, label: 'Photo', color: 'bg-purple-500' },
-                        { icon: <Video size={20} />, label: 'Video', color: 'bg-red-500' },
-                        { icon: <FileText size={20} />, label: 'Document', color: 'bg-blue-500' },
-                        { icon: <Users size={20} />, label: 'Contact', color: 'bg-teal-500' },
-                      ].map(item => (
+                      {[{ icon: <ImageIcon size={20} />, label: 'Photo', color: 'bg-purple-500' }, { icon: <Video size={20} />, label: 'Video', color: 'bg-red-500' }, { icon: <FileText size={20} />, label: 'Document', color: 'bg-blue-500' }].map(item => (
                         <button key={item.label} className="flex flex-col items-center gap-1" onClick={() => setShowAttachMenu(false)}>
-                          <div className={`w-12 h-12 ${item.color} rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform`}>
-                            {item.icon}
-                          </div>
+                          <div className={`w-12 h-12 ${item.color} rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform`}>{item.icon}</div>
                           <span className="text-xs text-gray-600">{item.label}</span>
                         </button>
                       ))}
                     </div>
                   )}
                   <div className="flex items-center gap-2">
-                    <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="p-2 hover:bg-gray-200 rounded-full text-gray-600" title="Emoji">
-                      <Smile size={22} />
-                    </button>
-                    <button onClick={() => setShowAttachMenu(!showAttachMenu)} className="p-2 hover:bg-gray-200 rounded-full text-gray-600" title="Attach">
-                      <Paperclip size={22} />
-                    </button>
+                    <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="p-2 hover:bg-gray-200 rounded-full text-gray-600"><Smile size={22} /></button>
+                    <button onClick={() => setShowAttachMenu(!showAttachMenu)} className="p-2 hover:bg-gray-200 rounded-full text-gray-600"><Paperclip size={22} /></button>
                     <div className="flex-1 relative">
-                      <input
-                        ref={inputRef}
-                        type="text"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Type a message"
-                        className="w-full px-4 py-2.5 bg-white rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
-                      />
+                      <input ref={inputRef} type="text" value={message} onChange={(e) => setMessage(e.target.value)} onKeyDown={handleKeyDown} placeholder="Type a message" className="w-full px-4 py-2.5 bg-white rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" />
                     </div>
                     {message.trim() ? (
-                      <button onClick={handleSend} className="p-2.5 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg transition-all hover:scale-105" title="Send">
-                        <Send size={20} />
-                      </button>
+                      <button onClick={handleSend} className="p-2.5 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg transition-all hover:scale-105"><Send size={20} /></button>
                     ) : (
-                      <button className="p-2.5 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg transition-all" title="Voice message">
-                        <Mic size={20} />
-                      </button>
+                      <button className="p-2.5 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg"><Mic size={20} /></button>
                     )}
                   </div>
-                  {/* Quick Actions */}
                   <div className="flex gap-2 mt-2">
-                    <button onClick={() => { setShowAIPanel(!showAIPanel); setShowTemplatePanel(false); }} className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1 transition-all ${showAIPanel ? 'bg-purple-500 text-white' : 'bg-purple-50 text-purple-600 hover:bg-purple-100'}`}>
-                      <Zap size={12} /> AI Reply
-                    </button>
-                    <button onClick={() => { setShowTemplatePanel(!showTemplatePanel); setShowAIPanel(false); }} className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1 transition-all ${showTemplatePanel ? 'bg-blue-500 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}>
-                      <FileText size={12} /> Templates
-                    </button>
-                    <button className="px-3 py-1.5 bg-green-50 text-green-600 rounded-full text-xs font-semibold hover:bg-green-100 flex items-center gap-1">
-                      <Tag size={12} /> Add Tag
-                    </button>
-                    <button className="px-3 py-1.5 bg-orange-50 text-orange-600 rounded-full text-xs font-semibold hover:bg-orange-100 flex items-center gap-1">
-                      <Calendar size={12} /> Schedule
-                    </button>
+                    <button onClick={() => { setShowAIPanel(!showAIPanel); setShowTemplatePanel(false); }} className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1 transition-all ${showAIPanel ? 'bg-purple-500 text-white' : 'bg-purple-50 text-purple-600 hover:bg-purple-100'}`}><Zap size={12} /> AI Reply</button>
+                    <button onClick={() => { setShowTemplatePanel(!showTemplatePanel); setShowAIPanel(false); }} className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1 transition-all ${showTemplatePanel ? 'bg-blue-500 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}><FileText size={12} /> Templates</button>
+                    <button onClick={() => { setShowSchedulePopup(true); setShowAIPanel(false); setShowTemplatePanel(false); }} className="px-3 py-1.5 bg-orange-50 text-orange-600 rounded-full text-xs font-semibold hover:bg-orange-100 flex items-center gap-1"><Calendar size={12} /> Schedule</button>
                   </div>
                 </div>
               </div>
@@ -1030,87 +650,14 @@ const ChatView: React.FC<{
               {showContactInfo && (
                 <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto hidden xl:block">
                   <div className="bg-gradient-to-b from-green-600 to-emerald-700 p-6 text-center">
-                    <button onClick={() => setShowContactInfo(false)} className="absolute top-3 right-3 text-white/70 hover:text-white">
-                      <X size={18} />
-                    </button>
-                    <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-3">
-                      {selectedContact.avatar}
-                    </div>
+                    <button onClick={() => setShowContactInfo(false)} className="absolute top-3 right-3 text-white/70 hover:text-white"><X size={18} /></button>
+                    <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-3">{selectedContact.avatar}</div>
                     <h3 className="font-bold text-white text-lg">{selectedContact.name}</h3>
                     <p className="text-green-100 text-sm">{selectedContact.phone}</p>
-                    <p className="text-green-200 text-xs mt-1">{selectedContact.online ? '🟢 Online' : '⚪ Last seen today'}</p>
                   </div>
-
                   <div className="p-4 space-y-4">
-                    {/* Tags */}
-                    <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Tags</h4>
-                      <div className="flex flex-wrap gap-1.5">
-                        {selectedContact.tags.map(tag => (
-                          <span key={tag} className="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-medium">{tag}</span>
-                        ))}
-                        <button className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full hover:bg-gray-200 font-medium">+ Add</button>
-                      </div>
-                    </div>
-
-                    {/* Quick Actions */}
-                    <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Quick Actions</h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button className="flex items-center gap-2 p-2.5 bg-blue-50 rounded-lg text-xs font-medium text-blue-700 hover:bg-blue-100">
-                          <Users size={14} /> Add to CRM
-                        </button>
-                        <button className="flex items-center gap-2 p-2.5 bg-orange-50 rounded-lg text-xs font-medium text-orange-700 hover:bg-orange-100">
-                          <Radio size={14} /> Broadcast
-                        </button>
-                        <button className="flex items-center gap-2 p-2.5 bg-purple-50 rounded-lg text-xs font-medium text-purple-700 hover:bg-purple-100">
-                          <Bot size={14} /> AI Chat
-                        </button>
-                        <button className="flex items-center gap-2 p-2.5 bg-red-50 rounded-lg text-xs font-medium text-red-700 hover:bg-red-100">
-                          <VolumeX size={14} /> Block
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* CRM Info */}
-                    <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">CRM Details</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between"><span className="text-gray-500">Stage:</span><span className="font-medium text-green-600">Contacted</span></div>
-                        <div className="flex justify-between"><span className="text-gray-500">Deal Value:</span><span className="font-medium">₹50,000</span></div>
-                        <div className="flex justify-between"><span className="text-gray-500">Source:</span><span className="font-medium">WhatsApp</span></div>
-                        <div className="flex justify-between"><span className="text-gray-500">Created:</span><span className="font-medium">Mar 15, 2024</span></div>
-                      </div>
-                    </div>
-
-                    {/* Media */}
-                    <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Shared Media</h4>
-                      <div className="grid grid-cols-3 gap-1.5">
-                        {[1, 2, 3].map(i => (
-                          <div key={i} className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
-                            <ImageIcon size={20} className="text-gray-400" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Activity */}
-                    <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Recent Activity</h4>
-                      <div className="space-y-2">
-                        {[
-                          { action: 'Message received', time: '2 min ago', icon: <MessageSquare size={12} /> },
-                          { action: 'Tag added: Hot Lead', time: '1 hour ago', icon: <Tag size={12} /> },
-                          { action: 'Added to pipeline', time: '2 hours ago', icon: <Users size={12} /> },
-                        ].map((act, i) => (
-                          <div key={i} className="flex items-center gap-2 text-xs text-gray-600">
-                            <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">{act.icon}</div>
-                            <div className="flex-1"><p className="font-medium text-gray-700">{act.action}</p><p className="text-gray-400">{act.time}</p></div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    <div><h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Tags</h4><div className="flex flex-wrap gap-1.5">{selectedContact.tags.map(tag => (<span key={tag} className="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-medium">{tag}</span>))}<button className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full hover:bg-gray-200 font-medium">+ Add</button></div></div>
+                    <div><h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Quick Actions</h4><div className="grid grid-cols-2 gap-2"><button className="flex items-center gap-2 p-2.5 bg-blue-50 rounded-lg text-xs font-medium text-blue-700 hover:bg-blue-100"><Users size={14} /> Add to CRM</button><button className="flex items-center gap-2 p-2.5 bg-orange-50 rounded-lg text-xs font-medium text-orange-700 hover:bg-orange-100"><Radio size={14} /> Broadcast</button></div></div>
                   </div>
                 </div>
               )}
@@ -1119,18 +666,12 @@ const ChatView: React.FC<{
         ) : (
           <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50">
             <div className="text-center max-w-md px-8">
-              <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <MessageSquare size={48} className="text-green-500" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">BizzAuto Solutions WhatsApp</h2>
-              <p className="text-gray-500 mb-6">Send and receive messages right from your dashboard. Click on a contact to start chatting.</p>
+              <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"><MessageSquare size={48} className="text-green-500" /></div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">WhatsApp Business</h2>
+              <p className="text-gray-500 mb-6">Click on a contact to start chatting.</p>
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => setShowNewChat(true)} className="p-3 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 flex items-center justify-center gap-2">
-                  <Plus size={18} /> New Chat
-                </button>
-                <button onClick={() => onNavigate('broadcast')} className="p-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 flex items-center justify-center gap-2">
-                  <Radio size={18} /> Broadcast
-                </button>
+                <button onClick={() => setShowNewChat(true)} className="p-3 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 flex items-center justify-center gap-2"><Plus size={18} /> New Chat</button>
+                <button onClick={() => onNavigate('broadcast')} className="p-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 flex items-center justify-center gap-2"><Radio size={18} /> Broadcast</button>
               </div>
             </div>
           </div>
@@ -2208,6 +1749,25 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
         setEvolutionQR(connectRes.data.data.qrCode);
       }
       setConnectionStatus('scanning');
+
+      // Poll for connection status
+      const pollInterval = setInterval(async () => {
+        try {
+          const statusRes = await evolutionAPI.getStatus(instanceName);
+          const st = statusRes?.data?.data;
+          if (st?.status === 'connected') {
+            clearInterval(pollInterval);
+            setIsEvolutionConnected(true);
+            setConnectionStatus('connected');
+            setConnectedPhone(st.phone || evolutionConfig.instanceName);
+          }
+        } catch {
+          // Still connecting, keep polling
+        }
+      }, 3000);
+
+      // Stop polling after 2 minutes
+      setTimeout(() => clearInterval(pollInterval), 120000);
     } catch (err: any) {
       const serverMsg = err?.response?.data?.error || err?.message;
       setApiError(serverMsg || 'Failed to connect to Evolution API');
