@@ -127,6 +127,8 @@ export class EvolutionApiService {
           await evoApi.delete(`${options.baseUrl}/instance/delete/${instanceName}`, {
             headers: { apikey: options.apiKey },
           });
+          // Wait for cleanup
+          await new Promise(r => setTimeout(r, 2000));
           const retry = await evoApi.post(
             `${options.baseUrl}/instance/create`,
             { instanceName, qrcode: true, integration: 'WHATSAPP-BAILEYS' },
@@ -150,49 +152,35 @@ export class EvolutionApiService {
     status: string;
   }> {
     const config = await this.getConfig(businessId);
-    const resolvedInstanceName = instanceName || config.instanceName;
+    let resolvedInstanceName = instanceName || config.instanceName;
 
-    // Evolution API v2 returns QR code only at instance creation time.
-    // If instance already exists, delete it first, then create fresh to get QR.
+    // Step 1: Try to delete existing instance (ignore errors if not found)
     try {
-      const createRes = await evoApi.post(
-        `${config.baseUrl}/instance/create`,
-        { instanceName: resolvedInstanceName, qrcode: true, integration: 'WHATSAPP-BAILEYS' },
-        { headers: { 'Content-Type': 'application/json', apikey: config.apiKey } }
-      );
-      const r = createRes.data;
-      const qrBase64 = r?.qrcode?.base64 || '';
-      const qrCodeText = r?.qrcode?.code || '';
-      await this.updateStatus(businessId, 'scanning');
-      return {
-        qrCode: qrBase64 || qrCodeText || '',
-        qrCodeBase64: qrBase64 || '',
-        status: 'scanning',
-      };
-    } catch (createError: any) {
-      const errMsg = createError.response?.data?.response?.message?.[0] || '';
-      if (errMsg.includes('already in use')) {
-        // Delete existing instance, then recreate to get fresh QR
-        await evoApi.delete(`${config.baseUrl}/instance/delete/${resolvedInstanceName}`, {
-          headers: { apikey: config.apiKey },
-        });
-        const retryRes = await evoApi.post(
-          `${config.baseUrl}/instance/create`,
-          { instanceName: resolvedInstanceName, qrcode: true, integration: 'WHATSAPP-BAILEYS' },
-          { headers: { 'Content-Type': 'application/json', apikey: config.apiKey } }
-        );
-        const r = retryRes.data;
-        const qrBase64 = r?.qrcode?.base64 || '';
-        const qrCodeText = r?.qrcode?.code || '';
-        await this.updateStatus(businessId, 'scanning');
-        return {
-          qrCode: qrBase64 || qrCodeText || '',
-          qrCodeBase64: qrBase64 || '',
-          status: 'scanning',
-        };
-      }
-      throw createError;
+      await evoApi.delete(`${config.baseUrl}/instance/delete/${resolvedInstanceName}`, {
+        headers: { apikey: config.apiKey },
+      });
+      // Wait for cleanup
+      await new Promise(r => setTimeout(r, 2000));
+    } catch {
+      // Instance may not exist, continue
     }
+
+    // Step 2: Create fresh instance with QR
+    const createRes = await evoApi.post(
+      `${config.baseUrl}/instance/create`,
+      { instanceName: resolvedInstanceName, qrcode: true, integration: 'WHATSAPP-BAILEYS' },
+      { headers: { 'Content-Type': 'application/json', apikey: config.apiKey } }
+    );
+
+    const r = createRes.data;
+    const qrBase64 = r?.qrcode?.base64 || '';
+    const qrCodeText = r?.qrcode?.code || '';
+    await this.updateStatus(businessId, 'scanning');
+    return {
+      qrCode: qrBase64 || qrCodeText || '',
+      qrCodeBase64: qrBase64 || '',
+      status: 'scanning',
+    };
   }
 
   /**
