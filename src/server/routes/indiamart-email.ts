@@ -147,11 +147,19 @@ router.post('/sync', authenticate, async (req: any, res: Response) => {
     }
 
     const config = integration.config as any;
+    const password = decrypt(config.password);
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Stored credentials cannot be decrypted. Please re-save your IndiaMART email password.',
+        hint: 'ENCRYPTION_KEY may have changed since credentials were stored',
+      });
+    }
     const emailConfig = {
       imapHost: config.imapHost,
       imapPort: config.imapPort,
       email: config.email,
-      password: decrypt(config.password),
+      password,
       useSSL: config.useSSL,
     };
 

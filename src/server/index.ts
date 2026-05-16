@@ -339,11 +339,16 @@ app.listen(Number(PORT), () => {
         const interval = (cfg.syncInterval || 60) * 60 * 1000;
         const lastSync = cfg.lastSyncAt ? new Date(cfg.lastSyncAt).getTime() : 0;
         if (Date.now() - lastSync < interval) continue;
+        const password = decrypt(cfg.password);
+        if (!password) {
+          logger.warn(`IndiaMART auto-sync skipped for business ${integration.businessId}: decryption failed (ENCRYPTION_KEY mismatch)`);
+          continue;
+        }
         const emailConfig = {
           imapHost: cfg.imapHost,
           imapPort: cfg.imapPort,
           email: cfg.email,
-          password: decrypt(cfg.password),
+          password,
           useSSL: cfg.useSSL,
         };
         await IndiaMARTEmailService.processIndiaMARTEmails(integration.businessId, emailConfig, {
