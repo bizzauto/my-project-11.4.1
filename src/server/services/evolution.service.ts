@@ -758,13 +758,14 @@ export class EvolutionApiService {
     status: string;
     instanceName: string;
     baseUrl: string;
+    apiKey: string;
   }> {
     const integration = await prisma.integration.findFirst({
       where: { businessId, type: 'evolution_api' },
     });
 
     if (!integration) {
-      return { configured: false, status: 'disconnected', instanceName: '', baseUrl: '' };
+      return { configured: false, status: 'disconnected', instanceName: '', baseUrl: '', apiKey: '' };
     }
 
     const config = integration.config as any;
@@ -773,6 +774,7 @@ export class EvolutionApiService {
       status: config.status || 'disconnected',
       instanceName: config.instanceName || '',
       baseUrl: config.baseUrl || '',
+      apiKey: config.apiKey || '',
     };
   }
 }
