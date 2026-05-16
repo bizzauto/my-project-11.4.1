@@ -35,7 +35,7 @@ export class EvolutionApiService {
 
     const config = integration.config as any;
     return {
-      baseUrl: (config.baseUrl || '').replace(/^https:\/\//i, 'http://'),
+      baseUrl: config.baseUrl || '',
       apiKey: config.apiKey || '',
       instanceName: config.instanceName || `biz_${businessId.slice(-8)}`,
     };
