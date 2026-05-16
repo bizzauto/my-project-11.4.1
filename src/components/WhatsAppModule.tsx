@@ -353,14 +353,60 @@ const ChatView: React.FC<{
   const [newChatPhone, setNewChatPhone] = useState('');
   const [showSchedulePopup, setShowSchedulePopup] = useState(false);
   const [scheduleDate, setScheduleDate] = useState('');
+  const [showTagInput, setShowTagInput] = useState(false);
+  const [newTag, setNewTag] = useState('');
+  const [toast, setToast] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let mounted = true;
     fetchTemplates().then(t => { if (mounted) setTemplates(t); });
     return () => { mounted = false; };
   }, []);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  const showToast = (msg: string) => setToast(msg);
+  const handleVideoCall = () => showToast('Video calls coming soon!');
+  const handleVoiceCall = () => showToast('Voice calls coming soon!');
+
+  const handleAttachFile = (type: string) => {
+    setShowAttachMenu(false);
+    if (type === 'document') {
+      fileInputRef.current?.click();
+    } else {
+      showToast(`${type} upload coming soon!`);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && selectedContact) {
+      showToast(`File "${file.name}" ready to send`);
+      e.target.value = '';
+    }
+  };
+
+  const handleAddTag = () => {
+    if (newTag.trim() && selectedContact) {
+      setSelectedContact(prev => prev ? { ...prev, tags: [...prev.tags, newTag.trim()] } : null);
+      setNewTag('');
+      setShowTagInput(false);
+      showToast(`Tag added`);
+    }
+  };
+
+  const handleAddToCRM = () => showToast('Add to CRM - coming soon!');
+  const handleBroadcastFromContact = () => onNavigate('broadcast');
+
+  const commonEmojis = ['😀', '😂', '😍', '🥰', '😎', '🤔', '👍', '👎', '❤️', '🔥', '🎉', '✅', '🙏', '💪', '👋', '😊', '🤣', '😢', '😡', '🥳', '💯', '⭐', '🚀', '💡', '📞', '📧', '📅', '⏰', '💰', '🎁'];
 
   const filteredContacts = contacts.filter(c => {
     const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.phone.includes(searchQuery);
@@ -543,8 +589,8 @@ const ChatView: React.FC<{
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <button className="p-2 hover:bg-white/20 rounded-lg text-white" title="Video Call"><Video size={20} /></button>
-                <button className="p-2 hover:bg-white/20 rounded-lg text-white" title="Voice Call"><Phone size={20} /></button>
+                <button onClick={handleVideoCall} className="p-2 hover:bg-white/20 rounded-lg text-white" title="Video Call"><Video size={20} /></button>
+                <button onClick={handleVoiceCall} className="p-2 hover:bg-white/20 rounded-lg text-white" title="Voice Call"><Phone size={20} /></button>
                 <button onClick={() => setShowContactInfo(!showContactInfo)} className="p-2 hover:bg-white/20 rounded-lg text-white" title="Contact Info"><MoreVertical size={20} /></button>
               </div>
             </div>
@@ -599,6 +645,20 @@ const ChatView: React.FC<{
                   </div>
                 )}
 
+                {showEmojiPicker && (
+                  <div className="bg-white border-t border-gray-200 p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-semibold text-gray-800">Emoji</h4>
+                      <button onClick={() => setShowEmojiPicker(false)} className="text-gray-400 hover:text-gray-600"><X size={16} /></button>
+                    </div>
+                    <div className="grid grid-cols-10 gap-1">
+                      {commonEmojis.map((emoji, i) => (
+                        <button key={i} onClick={() => { setMessage(prev => prev + emoji); setShowEmojiPicker(false); inputRef.current?.focus(); }} className="text-xl hover:bg-gray-100 rounded p-1 transition-colors">{emoji}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Schedule Popup */}
                 {showSchedulePopup && (
                   <div className="bg-white border-t border-gray-200 p-4">
@@ -616,16 +676,17 @@ const ChatView: React.FC<{
 
                 {/* Message Input */}
                 <div className="bg-[#f0f2f5] px-4 py-3 border-t border-gray-200">
-                  {showAttachMenu && (
-                    <div className="mb-3 flex gap-3 justify-center">
-                      {[{ icon: <ImageIcon size={20} />, label: 'Photo', color: 'bg-purple-500' }, { icon: <Video size={20} />, label: 'Video', color: 'bg-red-500' }, { icon: <FileText size={20} />, label: 'Document', color: 'bg-blue-500' }].map(item => (
-                        <button key={item.label} className="flex flex-col items-center gap-1" onClick={() => setShowAttachMenu(false)}>
-                          <div className={`w-12 h-12 ${item.color} rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform`}>{item.icon}</div>
-                          <span className="text-xs text-gray-600">{item.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                {showAttachMenu && (
+                  <div className="mb-3 flex gap-3 justify-center">
+                    {[{ icon: <ImageIcon size={20} />, label: 'Photo', color: 'bg-purple-500' }, { icon: <Video size={20} />, label: 'Video', color: 'bg-red-500' }, { icon: <FileText size={20} />, label: 'Document', color: 'bg-blue-500' }].map(item => (
+                      <button key={item.label} className="flex flex-col items-center gap-1" onClick={() => handleAttachFile(item.label.toLowerCase())}>
+                        <div className={`w-12 h-12 ${item.color} rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform`}>{item.icon}</div>
+                        <span className="text-xs text-gray-600">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <input ref={fileInputRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip" onChange={handleFileSelect} />
                   <div className="flex items-center gap-2">
                     <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="p-2 hover:bg-gray-200 rounded-full text-gray-600"><Smile size={22} /></button>
                     <button onClick={() => setShowAttachMenu(!showAttachMenu)} className="p-2 hover:bg-gray-200 rounded-full text-gray-600"><Paperclip size={22} /></button>
@@ -656,8 +717,8 @@ const ChatView: React.FC<{
                     <p className="text-green-100 text-sm">{selectedContact.phone}</p>
                   </div>
                   <div className="p-4 space-y-4">
-                    <div><h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Tags</h4><div className="flex flex-wrap gap-1.5">{selectedContact.tags.map(tag => (<span key={tag} className="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-medium">{tag}</span>))}<button className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full hover:bg-gray-200 font-medium">+ Add</button></div></div>
-                    <div><h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Quick Actions</h4><div className="grid grid-cols-2 gap-2"><button className="flex items-center gap-2 p-2.5 bg-blue-50 rounded-lg text-xs font-medium text-blue-700 hover:bg-blue-100"><Users size={14} /> Add to CRM</button><button className="flex items-center gap-2 p-2.5 bg-orange-50 rounded-lg text-xs font-medium text-orange-700 hover:bg-orange-100"><Radio size={14} /> Broadcast</button></div></div>
+                    <div><h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Tags</h4><div className="flex flex-wrap gap-1.5">{selectedContact.tags.map(tag => (<span key={tag} className="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-medium">{tag}</span>))}{showTagInput ? (<div className="flex gap-1"><input type="text" value={newTag} onChange={e => setNewTag(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleAddTag(); if (e.key === 'Escape') { setShowTagInput(false); setNewTag(''); } }} placeholder="Tag name" className="text-xs px-2 py-1 border border-gray-300 rounded-full w-20 focus:ring-1 focus:ring-green-500" autoFocus /><button onClick={handleAddTag} className="text-xs bg-green-500 text-white px-2 py-1 rounded-full hover:bg-green-600">+</button><button onClick={() => { setShowTagInput(false); setNewTag(''); }} className="text-xs text-gray-400 hover:text-gray-600"><X size={12} /></button></div>) : (<button onClick={() => setShowTagInput(true)} className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full hover:bg-gray-200 font-medium">+ Add</button>)}</div></div>
+                    <div><h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Quick Actions</h4><div className="grid grid-cols-2 gap-2"><button onClick={handleAddToCRM} className="flex items-center gap-2 p-2.5 bg-blue-50 rounded-lg text-xs font-medium text-blue-700 hover:bg-blue-100"><Users size={14} /> Add to CRM</button><button onClick={handleBroadcastFromContact} className="flex items-center gap-2 p-2.5 bg-orange-50 rounded-lg text-xs font-medium text-orange-700 hover:bg-orange-100"><Radio size={14} /> Broadcast</button></div></div>
                   </div>
                 </div>
               )}
@@ -677,6 +738,11 @@ const ChatView: React.FC<{
           </div>
         )}
       </div>
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-6 py-3 rounded-xl shadow-2xl text-sm font-medium">
+          {toast}
+        </div>
+      )}
     </div>
   );
 };
