@@ -406,7 +406,7 @@ const ChatView: React.FC<{
   const handleAddToCRM = () => showToast('Add to CRM - coming soon!');
   const handleBroadcastFromContact = () => onNavigate('broadcast');
 
-  const commonEmojis = ['😀', '😂', '😍', '🥰', '😎', '🤔', '👍', '👎', '❤️', '🔥', '🎉', '✅', '🙏', '💪', '👋', '😊', '🤣', '😢', '😡', '🥳', '💯', '⭐', '🚀', '💡', '📞', '📧', '📅', '⏰', '💰', '🎁'];
+  const commonEmojis = ['ðŸ˜€', 'ðŸ˜‚', 'ðŸ˜', 'ðŸ¥°', 'ðŸ˜Ž', 'ðŸ¤”', 'ðŸ‘', 'ðŸ‘Ž', 'â¤ï¸', 'ðŸ”¥', 'ðŸŽ‰', 'âœ…', 'ðŸ™', 'ðŸ’ª', 'ðŸ‘‹', 'ðŸ˜Š', 'ðŸ¤£', 'ðŸ˜¢', 'ðŸ˜¡', 'ðŸ¥³', 'ðŸ’¯', 'â­', 'ðŸš€', 'ðŸ’¡', 'ðŸ“ž', 'ðŸ“§', 'ðŸ“…', 'â°', 'ðŸ’°', 'ðŸŽ'];
 
   const filteredContacts = contacts.filter(c => {
     const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.phone.includes(searchQuery);
@@ -491,7 +491,7 @@ const ChatView: React.FC<{
   const aiReplySuggestions = [
     'Thank you for your interest! Our premium package includes unlimited access to all features. Would you like to proceed?',
     'Hi! We appreciate your message. Our team is available Mon-Sat, 10 AM to 8 PM. How can we assist you?',
-    'Great question! Let me share our complete catalog with you. One moment please 😊',
+    'Great question! Let me share our complete catalog with you. One moment please ðŸ˜Š',
   ];
 
   const handleSendTemplate = (template: WATemplate) => {
@@ -824,7 +824,7 @@ const BroadcastView: React.FC = () => {
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle size={40} className="text-green-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Broadcast Sent! 🎉</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Broadcast Sent! ðŸŽ‰</h2>
           <p className="text-gray-600 mb-2">Successfully sent to {selectedContacts.length} contacts</p>
           <p className="text-sm text-gray-500 mb-6">Template: {selectedTemplate?.name.replace(/_/g, ' ')}</p>
           <div className="grid grid-cols-3 gap-3 mb-6">
@@ -975,7 +975,7 @@ const BroadcastView: React.FC = () => {
                   <div className="flex justify-between p-3 bg-gray-50 rounded-lg"><span className="text-gray-600">Recipients:</span><span className="font-medium text-green-600">{selectedContacts.length} contacts</span></div>
                   <div className="flex justify-between p-3 bg-gray-50 rounded-lg"><span className="text-gray-600">Template:</span><span className="font-medium">{selectedTemplate.name.replace(/_/g, ' ')}</span></div>
                   <div className="flex justify-between p-3 bg-gray-50 rounded-lg"><span className="text-gray-600">Category:</span><span className="font-medium">{selectedTemplate.category}</span></div>
-                  <div className="flex justify-between p-3 bg-gray-50 rounded-lg"><span className="text-gray-600">Est. Cost:</span><span className="font-medium">₹{(selectedContacts.length * 0.76).toFixed(2)}</span></div>
+                  <div className="flex justify-between p-3 bg-gray-50 rounded-lg"><span className="text-gray-600">Est. Cost:</span><span className="font-medium">â‚¹{(selectedContacts.length * 0.76).toFixed(2)}</span></div>
                 </div>
 
                 <div className="mt-4">
@@ -1167,8 +1167,8 @@ const TemplateManagerView: React.FC = () => {
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[template.status]}`}>{template.status}</span>
                       <span className="text-xs text-gray-400">{template.category}</span>
-                      <span className="text-xs text-gray-400">•</span>
-                      <span className="text-xs text-gray-400">{template.language === 'en' ? '🇬🇧 English' : template.language === 'hi' ? '🇮🇳 Hindi' : template.language}</span>
+                      <span className="text-xs text-gray-400">â€¢</span>
+                      <span className="text-xs text-gray-400">{template.language === 'en' ? 'ðŸ‡¬ðŸ‡§ English' : template.language === 'hi' ? 'ðŸ‡®ðŸ‡³ Hindi' : template.language}</span>
                     </div>
                   </div>
                 </div>
@@ -1201,7 +1201,7 @@ const TemplateManagerView: React.FC = () => {
 
 const WhatsAppSettingsView: React.FC = () => {
   const [autoReplyEnabled, setAutoReplyEnabled] = useState(true);
-  const [welcomeMessage, setWelcomeMessage] = useState('Hello! 👋 Welcome to our business. How can we help you today?');
+  const [welcomeMessage, setWelcomeMessage] = useState('Hello! ðŸ‘‹ Welcome to our business. How can we help you today?');
   const [awayMessage, setAwayMessage] = useState('We are currently away. Our business hours are Mon-Sat, 10 AM to 8 PM IST. We\'ll get back to you soon!');
   const [autoReplies, setAutoReplies] = useState<AutoReplyRule[]>([]);
   const [autoRepliesLoading, setAutoRepliesLoading] = useState(true);
@@ -1356,7 +1356,7 @@ const WhatsAppSettingsView: React.FC = () => {
           {/* Save Button */}
           <div className="flex justify-end">
             <button className="px-8 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 font-semibold shadow-lg shadow-green-500/20">
-              💾 Save All Settings
+              ðŸ’¾ Save All Settings
             </button>
           </div>
         </div>
@@ -1430,7 +1430,7 @@ const CampaignsView: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">{campaign.name}</h4>
-                    <p className="text-xs text-gray-500">Created {campaign.createdAt} • Template: {campaign.template.replace(/_/g, ' ')}</p>
+                    <p className="text-xs text-gray-500">Created {campaign.createdAt} â€¢ Template: {campaign.template.replace(/_/g, ' ')}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -1667,7 +1667,7 @@ const ScheduledMessagesView: React.FC = () => {
                       <span className="flex items-center gap-1"><Phone size={12} /> {msg.phone}</span>
                       {msg.type !== 'text' && <span className="flex items-center gap-1"><Tag size={12} /> {msg.type}</span>}
                     </div>
-                    {msg.error && <p className="text-xs text-red-500 mt-1">⚠️ {msg.error}</p>}
+                    {msg.error && <p className="text-xs text-red-500 mt-1">âš ï¸ {msg.error}</p>}
                   </div>
                   {msg.status === 'pending' && (
                     <button
@@ -1711,8 +1711,8 @@ const WhatsAppModule: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const [connectionMode, setConnectionMode] = useState<ConnectionMode>('meta');
   const [evolutionQR, setEvolutionQR] = useState('');
   const [apiError, setApiError] = useState<string | null>(null);
-  const connTimer1 = useRef<ReturnType<typeof setTimeout>>();
-  const connTimer2 = useRef<ReturnType<typeof setTimeout>>();
+  const connTimer1 = useRef<ReturnType<typeof setTimeout | typeof setInterval>>(undefined);
+  const connTimer2 = useRef<ReturnType<typeof setTimeout | typeof setInterval>>(undefined);
   useEffect(() => () => { clearTimeout(connTimer1.current); clearTimeout(connTimer2.current); }, []);
 
   // Fetch Evolution config on mount

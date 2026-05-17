@@ -28,11 +28,11 @@ interface SocialPost {
 }
 
 const platforms = [
-  { id: 'facebook', name: 'Facebook', icon: '📘', color: 'bg-blue-600', textColor: 'text-blue-600', bgLight: 'bg-blue-50 dark:bg-blue-900/30' },
-  { id: 'instagram', name: 'Instagram', icon: '📷', color: 'bg-pink-600', textColor: 'text-pink-600', bgLight: 'bg-pink-50 dark:bg-pink-900/30' },
-  { id: 'linkedin', name: 'LinkedIn', icon: '💼', color: 'bg-blue-700', textColor: 'text-blue-700', bgLight: 'bg-blue-50 dark:bg-blue-900/30' },
-  { id: 'twitter', name: 'Twitter/X', icon: '🐦', color: 'bg-black', textColor: 'text-gray-900 dark:text-white', bgLight: 'bg-gray-50 dark:bg-gray-700' },
-  { id: 'youtube', name: 'YouTube', icon: '📺', color: 'bg-red-600', textColor: 'text-red-600', bgLight: 'bg-red-50 dark:bg-red-900/30' },
+  { id: 'facebook', name: 'Facebook', icon: 'ðŸ“˜', color: 'bg-blue-600', textColor: 'text-blue-600', bgLight: 'bg-blue-50 dark:bg-blue-900/30' },
+  { id: 'instagram', name: 'Instagram', icon: 'ðŸ“·', color: 'bg-pink-600', textColor: 'text-pink-600', bgLight: 'bg-pink-50 dark:bg-pink-900/30' },
+  { id: 'linkedin', name: 'LinkedIn', icon: 'ðŸ’¼', color: 'bg-blue-700', textColor: 'text-blue-700', bgLight: 'bg-blue-50 dark:bg-blue-900/30' },
+  { id: 'twitter', name: 'Twitter/X', icon: 'ðŸ¦', color: 'bg-black', textColor: 'text-gray-900 dark:text-white', bgLight: 'bg-gray-50 dark:bg-gray-700' },
+  { id: 'youtube', name: 'YouTube', icon: 'ðŸ“º', color: 'bg-red-600', textColor: 'text-red-600', bgLight: 'bg-red-50 dark:bg-red-900/30' },
 ];
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
@@ -80,7 +80,7 @@ const SocialMediaPage: React.FC = () => {
   const demoPosts: SocialPost[] = [
     {
       id: '1',
-      content: '🚀 Exciting news! We are launching our new product next week. Stay tuned for updates! #Launch #NewProduct',
+      content: 'ðŸš€ Exciting news! We are launching our new product next week. Stay tuned for updates! #Launch #NewProduct',
       platforms: ['facebook', 'instagram', 'linkedin'],
       status: 'published',
       publishedAt: '2024-01-15T10:30:00Z',
@@ -91,7 +91,7 @@ const SocialMediaPage: React.FC = () => {
     },
     {
       id: '2',
-      content: '📢 Special offer: Get 20% off on all services this weekend only! Limited time offer. #SpecialOffer #WeekendSale',
+      content: 'ðŸ“¢ Special offer: Get 20% off on all services this weekend only! Limited time offer. #SpecialOffer #WeekendSale',
       platforms: ['facebook', 'instagram'],
       status: 'scheduled',
       scheduledAt: '2024-01-20T09:00:00Z',
@@ -102,7 +102,7 @@ const SocialMediaPage: React.FC = () => {
     },
     {
       id: '3',
-      content: '💡 Did you know? Our platform helps businesses automate their workflows and save up to 10 hours per week! #Productivity #Automation',
+      content: 'ðŸ’¡ Did you know? Our platform helps businesses automate their workflows and save up to 10 hours per week! #Productivity #Automation',
       platforms: ['linkedin', 'twitter'],
       status: 'published',
       publishedAt: '2024-01-12T14:00:00Z',
@@ -113,7 +113,7 @@ const SocialMediaPage: React.FC = () => {
     },
     {
       id: '4',
-      content: '🎉 Thank you to our amazing customers! We reached 10,000 users today! #Milestone #ThankYou',
+      content: 'ðŸŽ‰ Thank you to our amazing customers! We reached 10,000 users today! #Milestone #ThankYou',
       platforms: ['facebook', 'instagram', 'twitter'],
       status: 'draft',
       likes: 0,
@@ -123,7 +123,7 @@ const SocialMediaPage: React.FC = () => {
     },
     {
       id: '5',
-      content: '📸 Behind the scenes: Our team working hard to bring you the best features! #TeamWork #BehindTheScenes',
+      content: 'ðŸ“¸ Behind the scenes: Our team working hard to bring you the best features! #TeamWork #BehindTheScenes',
       platforms: ['instagram'],
       status: 'published',
       publishedAt: '2024-01-10T16:45:00Z',
@@ -136,11 +136,11 @@ const SocialMediaPage: React.FC = () => {
 
   // Demo platform stats
   const platformStats = [
-    { platform: 'Facebook', icon: '📘', posts: 45, followers: 12500, engagement: 4.8 },
-    { platform: 'Instagram', icon: '📷', posts: 38, followers: 8900, engagement: 5.2 },
-    { platform: 'LinkedIn', icon: '💼', posts: 28, followers: 4200, engagement: 3.9 },
-    { platform: 'Twitter/X', icon: '🐦', posts: 26, followers: 3100, engagement: 4.1 },
-    { platform: 'YouTube', icon: '📺', posts: 15, followers: 5600, engagement: 6.8 },
+    { platform: 'Facebook', icon: 'ðŸ“˜', posts: 45, followers: 12500, engagement: 4.8 },
+    { platform: 'Instagram', icon: 'ðŸ“·', posts: 38, followers: 8900, engagement: 5.2 },
+    { platform: 'LinkedIn', icon: 'ðŸ’¼', posts: 28, followers: 4200, engagement: 3.9 },
+    { platform: 'Twitter/X', icon: 'ðŸ¦', posts: 26, followers: 3100, engagement: 4.1 },
+    { platform: 'YouTube', icon: 'ðŸ“º', posts: 15, followers: 5600, engagement: 6.8 },
   ];
 
   // Demo analytics data
@@ -208,7 +208,7 @@ const SocialMediaPage: React.FC = () => {
     return () => { mountedRef.current = false; };
   }, [fetchPosts]);
 
-  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  const toastTimer = useRef<ReturnType<typeof setTimeout | typeof setInterval>>(undefined);
   useEffect(() => () => clearTimeout(toastTimer.current), []);
   const showToast = (message: string, type = 'success') => {
     setToast({ message, type });
@@ -448,8 +448,8 @@ const SocialMediaPage: React.FC = () => {
                       <div className="mt-1 space-y-1">
                         {Array.from({ length: Math.min(d.posts, 2) }).map((_, j) => (
                           <div key={j} className="px-1 sm:px-2 py-0.5 sm:py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs rounded truncate">
-                            <span className="hidden sm:inline">📱 Post {j + 1}</span>
-                            <span className="sm:hidden">📱</span>
+                            <span className="hidden sm:inline">ðŸ“± Post {j + 1}</span>
+                            <span className="sm:hidden">ðŸ“±</span>
                           </div>
                         ))}
                         {d.posts > 2 && <p className="text-xs text-gray-400">+{d.posts - 2}</p>}
@@ -520,7 +520,7 @@ const SocialMediaPage: React.FC = () => {
 
           {/* Best Time to Post */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-3 sm:p-6 border border-gray-100 dark:border-gray-700">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">⏰ Best Time to Post</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">â° Best Time to Post</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <div className="p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Facebook</p>
@@ -560,13 +560,13 @@ const SocialMediaPage: React.FC = () => {
                 <textarea
                   value={composeContent}
                   onChange={e => setComposeContent(e.target.value)}
-                  placeholder="Write your post or click ✨ Generate with AI..."
+                  placeholder="Write your post or click âœ¨ Generate with AI..."
                   rows={4}
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
                 />
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mt-2">
                   <button className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg text-xs sm:text-sm hover:bg-purple-100 dark:hover:bg-purple-900/50">
-                    <Zap size={14} /> ✨ Generate with AI
+                    <Zap size={14} /> âœ¨ Generate with AI
                   </button>
                   <span className="text-xs text-gray-400">{composeContent.length} characters</span>
                 </div>

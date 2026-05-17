@@ -36,7 +36,7 @@ const demoTemplates: EmailTemplate[] = [
 ];
 
 const demoCampaigns: EmailCampaign[] = [
-  { id: '1', name: 'New Year Sale', subject: '🎉 New Year Special Offer!', status: 'sent', recipients: 450, sent: 450, delivered: 432, opened: 156, clicked: 45 },
+  { id: '1', name: 'New Year Sale', subject: 'ðŸŽ‰ New Year Special Offer!', status: 'sent', recipients: 450, sent: 450, delivered: 432, opened: 156, clicked: 45 },
   { id: '2', name: 'Product Launch', subject: 'Introducing Our New Feature', status: 'scheduled', recipients: 380 },
   { id: '3', name: 'Re-engagement', subject: 'We Miss You!', status: 'draft', recipients: 200 },
 ];
@@ -60,7 +60,7 @@ export default function EmailMarketingPage() {
     activeDrips: drips.filter(d => d.isActive).length,
   };
 
-  const campaignTimer = useRef<ReturnType<typeof setTimeout>>();
+  const campaignTimer = useRef<ReturnType<typeof setTimeout | typeof setInterval>>(undefined);
   useEffect(() => () => clearTimeout(campaignTimer.current), []);
   const sendCampaign = (id: string) => {
     setCampaigns(prev => prev.map(c => 
@@ -178,7 +178,7 @@ export default function EmailMarketingPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">{drip.name}</h3>
-                  <p className="text-sm text-gray-500">Trigger: {drip.trigger} • {drip.emails} emails</p>
+                  <p className="text-sm text-gray-500">Trigger: {drip.trigger} â€¢ {drip.emails} emails</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <button className={`px-3 py-1.5 rounded-lg text-sm ${drip.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>

@@ -38,9 +38,9 @@ const FONT_OPTIONS = [
 ];
 
 const FORMAT_OPTIONS = [
-  { name: 'Square', desc: '1080×1080', ratio: 'aspect-square' },
-  { name: 'Story', desc: '1080×1920', ratio: 'aspect-[9/16]' },
-  { name: 'Landscape', desc: '1200×628', ratio: 'aspect-[16/9]' },
+  { name: 'Square', desc: '1080Ã—1080', ratio: 'aspect-square' },
+  { name: 'Story', desc: '1080Ã—1920', ratio: 'aspect-[9/16]' },
+  { name: 'Landscape', desc: '1200Ã—628', ratio: 'aspect-[16/9]' },
 ];
 
 const CreativeGeneratorPage: React.FC = () => {
@@ -111,15 +111,15 @@ const CreativeGeneratorPage: React.FC = () => {
       console.error('Failed to fetch templates:', error);
       // Set default templates if API fails
       const defaultTemplates = [
-        { id: '1', name: 'Diwali Special', emoji: '🪔', gradient: 'from-orange-500 via-red-500 to-yellow-500', category: 'Festival' },
-        { id: '2', name: 'Holi Colors', emoji: '🎨', gradient: 'from-pink-500 via-purple-500 to-blue-500', category: 'Festival' },
-        { id: '3', name: 'Eid Mubarak', emoji: '🌙', gradient: 'from-emerald-500 via-teal-500 to-cyan-500', category: 'Festival' },
-        { id: '4', name: 'Christmas', emoji: '🎄', gradient: 'from-red-600 via-green-600 to-red-700', category: 'Festival' },
-        { id: '5', name: 'Flash Sale', emoji: '⚡', gradient: 'from-blue-600 via-indigo-600 to-purple-600', category: 'Offer' },
-        { id: '6', name: 'Grand Opening', emoji: '🏪', gradient: 'from-amber-500 via-orange-500 to-red-500', category: 'Offer' },
-        { id: '7', name: 'New Arrival', emoji: '🆕', gradient: 'from-violet-500 via-purple-500 to-fuchsia-500', category: 'Product' },
-        { id: '8', name: 'Summer Sale', emoji: '☀️', gradient: 'from-yellow-400 via-orange-400 to-red-400', category: 'Seasonal' },
-        { id: '9', name: 'Monsoon Sale', emoji: '🌧️', gradient: 'from-slate-500 via-blue-500 to-indigo-500', category: 'Seasonal' },
+        { id: '1', name: 'Diwali Special', emoji: 'ðŸª”', gradient: 'from-orange-500 via-red-500 to-yellow-500', category: 'Festival' },
+        { id: '2', name: 'Holi Colors', emoji: 'ðŸŽ¨', gradient: 'from-pink-500 via-purple-500 to-blue-500', category: 'Festival' },
+        { id: '3', name: 'Eid Mubarak', emoji: 'ðŸŒ™', gradient: 'from-emerald-500 via-teal-500 to-cyan-500', category: 'Festival' },
+        { id: '4', name: 'Christmas', emoji: 'ðŸŽ„', gradient: 'from-red-600 via-green-600 to-red-700', category: 'Festival' },
+        { id: '5', name: 'Flash Sale', emoji: 'âš¡', gradient: 'from-blue-600 via-indigo-600 to-purple-600', category: 'Offer' },
+        { id: '6', name: 'Grand Opening', emoji: 'ðŸª', gradient: 'from-amber-500 via-orange-500 to-red-500', category: 'Offer' },
+        { id: '7', name: 'New Arrival', emoji: 'ðŸ†•', gradient: 'from-violet-500 via-purple-500 to-fuchsia-500', category: 'Product' },
+        { id: '8', name: 'Summer Sale', emoji: 'â˜€ï¸', gradient: 'from-yellow-400 via-orange-400 to-red-400', category: 'Seasonal' },
+        { id: '9', name: 'Monsoon Sale', emoji: 'ðŸŒ§ï¸', gradient: 'from-slate-500 via-blue-500 to-indigo-500', category: 'Seasonal' },
       ];
       setTemplates(defaultTemplates);
       setSelectedTemplate(defaultTemplates[0] || null);
@@ -131,15 +131,15 @@ const CreativeGeneratorPage: React.FC = () => {
 
   const getEmojiForCategory = (category: string): string => {
     const emojiMap: Record<string, string> = {
-      'Festival': '🎉',
-      'Offer': '🎁',
-      'Product': '📦',
-      'Seasonal': '🌸',
-      'Testimonial': '⭐',
-      'Menu': '🍽️',
-      'Price List': '💰',
+      'Festival': 'ðŸŽ‰',
+      'Offer': 'ðŸŽ',
+      'Product': 'ðŸ“¦',
+      'Seasonal': 'ðŸŒ¸',
+      'Testimonial': 'â­',
+      'Menu': 'ðŸ½ï¸',
+      'Price List': 'ðŸ’°',
     };
-    return emojiMap[category] || '🎨';
+    return emojiMap[category] || 'ðŸŽ¨';
   };
 
   const getGradientForCategory = (category: string): string => {
@@ -201,7 +201,7 @@ const CreativeGeneratorPage: React.FC = () => {
     }
   };
 
-  const copyTimer = useRef<ReturnType<typeof setTimeout>>();
+  const copyTimer = useRef<ReturnType<typeof setTimeout | typeof setInterval>>(undefined);
   useEffect(() => () => clearTimeout(copyTimer.current), []);
   const handleCopyText = (text: string) => {
     navigator.clipboard?.writeText(text);

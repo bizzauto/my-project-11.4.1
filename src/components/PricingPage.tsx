@@ -69,7 +69,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, onSelect, loading }) =>
         <div className="mb-6">
           <div className="flex items-baseline gap-1">
             <span className="text-4xl font-bold text-gray-900 dark:text-white">
-              ₹{price.toLocaleString()}
+              â‚¹{price.toLocaleString()}
             </span>
             <span className="text-gray-500 dark:text-gray-400">/{period}</span>
           </div>
@@ -198,7 +198,7 @@ export default function PricingPage({ onNavigate }: PricingPageProps) {
     },
   ]);
 
-  const planTimer = useRef<ReturnType<typeof setTimeout>>();
+  const planTimer = useRef<ReturnType<typeof setTimeout | typeof setInterval>>(undefined);
   useEffect(() => () => clearTimeout(planTimer.current), []);
   const handleSelectPlan = async (planId: string, period: 'month' | 'year') => {
     if (planId === 'FREE') {

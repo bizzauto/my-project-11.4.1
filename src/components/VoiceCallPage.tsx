@@ -123,8 +123,8 @@ const VoiceCallPage: React.FC = () => {
 
   const filteredCalls = calls.filter(c => filter === 'all' || c.type === filter).filter(c => !search || c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search));
 
-  const callTimerRef = useRef<ReturnType<typeof setInterval>>();
-  const callTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const callTimerRef = useRef<ReturnType<typeof setTimeout | typeof setInterval>>(undefined);
+  const callTimeoutRef = useRef<ReturnType<typeof setTimeout | typeof setInterval>>(undefined);
   useEffect(() => () => { clearInterval(callTimerRef.current); clearTimeout(callTimeoutRef.current); }, []);
   const startCall = () => { setIsCallActive(true); setCallTimer(0); callTimerRef.current = setInterval(() => setCallTimer(t => t + 1), 1000); callTimeoutRef.current = setTimeout(() => { clearInterval(callTimerRef.current); setIsCallActive(false); }, 30000); };
   const endCall = () => setIsCallActive(false);
@@ -255,7 +255,7 @@ const VoiceCallPage: React.FC = () => {
                   <div className="flex items-center gap-4">
                     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${tc.bg} ${tc.color}`}>{tc.icon} {tc.label}</span>
                     <div className="text-right">
-                      <p className="text-sm text-gray-900 dark:text-white">{call.duration !== '-' ? call.duration : '—'}</p>
+                      <p className="text-sm text-gray-900 dark:text-white">{call.duration !== '-' ? call.duration : 'â€”'}</p>
                       <p className="text-xs text-gray-400">{call.time}</p>
                     </div>
                     <button onClick={() => { setDialNumber(call.phone); startCall(); }} className="p-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors" title="Call back">

@@ -94,7 +94,7 @@ export default function TwoFactorSetupModal({ isOpen, onClose, onComplete }: Two
     }
   };
 
-  const copyTimer = useRef<ReturnType<typeof setTimeout>>();
+  const copyTimer = useRef<ReturnType<typeof setTimeout | typeof setInterval>>(undefined);
   useEffect(() => () => clearTimeout(copyTimer.current), []);
   const handleCopySecret = () => {
     navigator.clipboard.writeText(secret);
@@ -350,9 +350,9 @@ export default function TwoFactorSetupModal({ isOpen, onClose, onComplete }: Two
                   What's Next?
                 </h4>
                 <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                  <li>• You'll need your authenticator app to log in</li>
-                  <li>• Keep your backup codes safe</li>
-                  <li>• You can disable 2FA in security settings</li>
+                  <li>â€¢ You'll need your authenticator app to log in</li>
+                  <li>â€¢ Keep your backup codes safe</li>
+                  <li>â€¢ You can disable 2FA in security settings</li>
                 </ul>
               </div>
 

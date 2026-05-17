@@ -26,7 +26,7 @@ const UserProfile: React.FC = () => {
     confirmPassword: '',
   });
 
-  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  const toastTimer = useRef<ReturnType<typeof setTimeout | typeof setInterval>>(undefined);
   useEffect(() => () => clearTimeout(toastTimer.current), []);
   const showToast = (message: string, type = 'success') => {
     setToast({ message, type });
@@ -135,7 +135,7 @@ const UserProfile: React.FC = () => {
               <div className="bg-blue-50 rounded-lg p-3">
                 <p className="text-sm font-medium text-blue-800">{business?.plan || 'Free'} Plan</p>
                 <p className="text-xs text-blue-600 mt-1">
-                  {business?.plan === 'pro' ? '₹1499/month' : business?.plan === 'starter' ? '₹499/month' : 'Free tier'}
+                  {business?.plan === 'pro' ? 'â‚¹1499/month' : business?.plan === 'starter' ? 'â‚¹499/month' : 'Free tier'}
                 </p>
               </div>
             </div>

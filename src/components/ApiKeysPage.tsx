@@ -22,7 +22,7 @@ const ApiKeysPage: React.FC = () => {
   const [newKeyPermissions, setNewKeyPermissions] = useState<string[]>(['read']);
   const [newKey, setNewKey] = useState('');
   const [copied, setCopied] = useState(false);
-  const copyTimer = useRef<ReturnType<typeof setTimeout>>();
+  const copyTimer = useRef<ReturnType<typeof setTimeout | typeof setInterval>>(undefined);
   useEffect(() => () => clearTimeout(copyTimer.current), []);
   const [creating, setCreating] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ApiKey | null>(null);

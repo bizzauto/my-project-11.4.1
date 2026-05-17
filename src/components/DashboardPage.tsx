@@ -27,7 +27,7 @@ interface AnimatedNumberProps {
 const AnimatedNumber: React.FC<AnimatedNumberProps> = ({ value, duration = 1000 }) => {
   const [current, setCurrent] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval>>();
+  const intervalRef = useRef<ReturnType<typeof setTimeout | typeof setInterval>>(undefined);
   
   useEffect(() => {
     if (!hasAnimated) {

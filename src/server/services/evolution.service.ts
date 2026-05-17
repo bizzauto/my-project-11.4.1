@@ -201,7 +201,7 @@ export class EvolutionApiService {
       );
 
       const instance = Array.isArray(response.data) ? response.data[0] : response.data;
-      const state = instance?.instance?.state || instance?.state || 'close';
+      const state = instance?.connectionStatus || instance?.instance?.state || instance?.state || 'close';
 
       if (state === 'open') {
         // Fetch profile info

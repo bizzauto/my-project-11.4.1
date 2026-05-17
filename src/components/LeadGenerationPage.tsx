@@ -53,7 +53,7 @@ export default function LeadGenerationPage(){
   },[fSrc,fSt,q]);
 
   useEffect(()=>{fetchLeads();},[fetchLeads]);
-  const toastTimer=useRef<ReturnType<typeof setTimeout>>();
+  const toastTimer=useRef<ReturnType<typeof setTimeout | typeof setInterval>>(undefined);
   useEffect(()=>()=>clearTimeout(toastTimer.current),[]);
   const toast_=(m:string,t:'success'|'error')=>{setToast({m,t});clearTimeout(toastTimer.current);toastTimer.current=setTimeout(()=>setToast(null),3000);};
  useEffect(()=>{fetchImConfig();},[]);
@@ -245,12 +245,12 @@ export default function LeadGenerationPage(){
               <td className="px-4 py-3"><input type="checkbox" checked={sel.has(l.id)} onChange={()=>tog(l.id)} className="rounded border-gray-300 text-blue-600"/></td>
               <td className="px-4 py-3"><div className="flex items-center gap-2"><div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">{l.name?.charAt(0)?.toUpperCase()||'?'}</div><div><p className="font-medium text-gray-900 dark:text-white">{l.name||'Unknown'}</p>{l.company&&<p className="text-xs text-gray-500">{l.company}</p>}</div></div></td>
               <td className="px-4 py-3"><p className="text-gray-900 dark:text-white">{l.phone}</p>{l.email&&<p className="text-xs text-gray-500">{l.email}</p>}</td>
-              <td className="px-4 py-3">{l.location?<span className="flex items-center gap-1 text-gray-700 dark:text-gray-300"><MapPin size={12} className="text-gray-400"/>{l.location}</span>:<span className="text-gray-400">—</span>}</td>
-              <td className="px-4 py-3">{l.product?<span className="flex items-center gap-1 text-gray-700 dark:text-gray-300"><Package size={12} className="text-gray-400"/>{l.product}</span>:<span className="text-gray-400">—</span>}</td>
-              <td className="px-4 py-3">{l.supplier?<span className="flex items-center gap-1 text-gray-700 dark:text-gray-300"><Truck size={12} className="text-gray-400"/>{l.supplier}</span>:<span className="text-gray-400">—</span>}</td>
+              <td className="px-4 py-3">{l.location?<span className="flex items-center gap-1 text-gray-700 dark:text-gray-300"><MapPin size={12} className="text-gray-400"/>{l.location}</span>:<span className="text-gray-400">â€”</span>}</td>
+              <td className="px-4 py-3">{l.product?<span className="flex items-center gap-1 text-gray-700 dark:text-gray-300"><Package size={12} className="text-gray-400"/>{l.product}</span>:<span className="text-gray-400">â€”</span>}</td>
+              <td className="px-4 py-3">{l.supplier?<span className="flex items-center gap-1 text-gray-700 dark:text-gray-300"><Truck size={12} className="text-gray-400"/>{l.supplier}</span>:<span className="text-gray-400">â€”</span>}</td>
               <td className="px-4 py-3"><span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white" style={{backgroundColor:SC[l.source]||'#6B7280'}}>{l.source.replace('_',' ')}</span></td>
               <td className="px-4 py-3"><span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor:`${STC[l.status]||'#6B7280'}20`,color:STC[l.status]||'#6B7280'}}>{l.status}</span></td>
-              <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{l.dealValue?`₹${l.dealValue.toLocaleString()}`:'—'}</td>
+              <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{l.dealValue?`â‚¹${l.dealValue.toLocaleString()}`:'â€”'}</td>
               <td className="px-4 py-3"><div className="flex items-center gap-1">
                 <button onClick={()=>setDetail(l)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded" title="View"><Eye size={14}/></button>
                 <button onClick={()=>quickReply(l,'whatsapp')} className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded" title="WhatsApp"><MessageSquare size={14}/></button>
@@ -292,11 +292,11 @@ export default function LeadGenerationPage(){
           <div className="flex items-start gap-4"><div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">{detail.name?.charAt(0)?.toUpperCase()||'?'}</div><div className="flex-1"><h3 className="text-xl font-semibold text-gray-900 dark:text-white">{detail.name||'Unknown'}</h3>{detail.company&&<p className="text-gray-500 dark:text-gray-400">{detail.company}</p>}<div className="flex gap-2 mt-2"><span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium text-white" style={{backgroundColor:SC[detail.source]||'#6B7280'}}>{detail.source.replace('_',' ')}</span><span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" style={{backgroundColor:`${STC[detail.status]||'#6B7280'}20`,color:STC[detail.status]||'#6B7280'}}>{detail.status}</span></div></div></div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4">
             <div><p className="text-sm text-gray-500 dark:text-gray-400">Phone</p><p className="font-medium text-gray-900 dark:text-white flex items-center gap-2"><Phone size={14}/>{detail.phone}</p></div>
-            <div><p className="text-sm text-gray-500 dark:text-gray-400">Email</p><p className="font-medium text-gray-900 dark:text-white">{detail.email||'—'}</p></div>
-            <div><p className="text-sm text-gray-500 dark:text-gray-400">Location</p><p className="font-medium text-gray-900 dark:text-white flex items-center gap-2"><MapPin size={14}/>{detail.location||'—'}</p></div>
-            <div><p className="text-sm text-gray-500 dark:text-gray-400">Deal Value</p><p className="font-medium text-gray-900 dark:text-white">{detail.dealValue?`₹${detail.dealValue.toLocaleString()}`:'—'}</p></div>
-            <div><p className="text-sm text-gray-500 dark:text-gray-400">Product</p><p className="font-medium text-gray-900 dark:text-white flex items-center gap-2"><Package size={14}/>{detail.product||'—'}</p></div>
-            <div><p className="text-sm text-gray-500 dark:text-gray-400">Supplier</p><p className="font-medium text-gray-900 dark:text-white flex items-center gap-2"><Truck size={14}/>{detail.supplier||'—'}</p></div>
+            <div><p className="text-sm text-gray-500 dark:text-gray-400">Email</p><p className="font-medium text-gray-900 dark:text-white">{detail.email||'â€”'}</p></div>
+            <div><p className="text-sm text-gray-500 dark:text-gray-400">Location</p><p className="font-medium text-gray-900 dark:text-white flex items-center gap-2"><MapPin size={14}/>{detail.location||'â€”'}</p></div>
+            <div><p className="text-sm text-gray-500 dark:text-gray-400">Deal Value</p><p className="font-medium text-gray-900 dark:text-white">{detail.dealValue?`â‚¹${detail.dealValue.toLocaleString()}`:'â€”'}</p></div>
+            <div><p className="text-sm text-gray-500 dark:text-gray-400">Product</p><p className="font-medium text-gray-900 dark:text-white flex items-center gap-2"><Package size={14}/>{detail.product||'â€”'}</p></div>
+            <div><p className="text-sm text-gray-500 dark:text-gray-400">Supplier</p><p className="font-medium text-gray-900 dark:text-white flex items-center gap-2"><Truck size={14}/>{detail.supplier||'â€”'}</p></div>
           </div>
           {detail.requirement&&<div><p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Requirement</p><p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3">{detail.requirement}</p></div>}
           {detail.tags&&detail.tags.length>0&&<div><p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Tags</p><div className="flex flex-wrap gap-2">{detail.tags.map((t,i)=><span key={i} className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium">{t}</span>)}</div></div>}
